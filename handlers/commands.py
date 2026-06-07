@@ -68,8 +68,8 @@ async def get_setup_instruction_v1(update: Update, context: ContextTypes.DEFAULT
             "/get_dsq_v1 का उपयोग करें, फिर डाउनलोड की गई फाइल पर डबल‑क्लिक करें → यह MetaTrader में जुड़ जाएगी।\n"
             "Navigator पैनल (दाईं ओर) में dsq_v1 को Expert Advisors के अंतर्गत देखें।\n\n"
             "4. <b>लाइसेंस एक्टिवेट करें</b>\n"
-            "/get_licence_v1 का उपयोग करें।\n\n"
-            "🌐 <b>DSQ वेब पेज से सेटअप</b>\n"
+            "/get_licence_v1 का उपयोग करें।\n\n\n\n\n\n\n\n"
+            "🌐 <b>DSQ वेबगाइड(पेज से सेटअप)</b>\n"
             "https://shorturl.at/YU5yw\n"
             "ऊपर दिए गए लिंक को खोलें, \"Free Bot Setup\" पर जाएं और अपने कंप्यूटर पर मुफ्त सेटअप के निर्देशों का पालन करें।\n\n"
             "📹 <b>निर्देश वीडियो</b>\n"
@@ -90,15 +90,15 @@ async def get_setup_instruction_v1(update: Update, context: ContextTypes.DEFAULT
             "Use /get_dsq_v1, then double‑click the downloaded file → it will be added to MetaTrader.\n"
             "In the Navigator panel (right side), find dsq_v1 under Expert Advisors.\n\n"
             "4. <b>Activate your Bot Licence</b>\n"
-            "Use /get_licence_v1\n\n"
-            "🌐 <b>Setup from DSQ Web Page</b>\n"
+            "Use /get_licence_v1\n\n\n\n\n\n\n\n"
+            "🌐 <b>Setup Guide(from DSQ Web Page)</b>\n"
             "https://shorturl.at/YU5yw\n"
             "Open the link above, go to \"Free Bot Setup\" and follow the instructions to set up in your computer for free.\n\n"
             "📹 <b>Instruction Videos</b>\n"
             "Set up in instruction video: https://www.youtube.com/watch?v=AikfpXh4W4U\n"
             "Which account to use to minimize risk: https://www.youtube.com/watch?v=gG-SbraJwiY"
         )
-    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=False)
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
 
 async def risk_v1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)

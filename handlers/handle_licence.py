@@ -167,20 +167,30 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             msg = "❌ Please type only <b>Demo</b> or <b>Real</b>."
         await update.message.reply_text(msg, parse_mode="HTML")
-        return ASK_ACCOUNT_TYPE   # re‑ask
+        return ASK_ACCOUNT_TYPE
 
-    # All details collected
     mt5 = context.user_data.pop("licence_mt5")
     name = context.user_data.pop("licence_name")
     broker = context.user_data.pop("licence_broker")
     lang = get_lang(context)
 
+    # --- Personalised progress message using Telegram user's first name ---
+    tg_first = update.effective_user.first_name if update.effective_user else "there"
+
+    if lang == "hi":
+        progress_text = f"⏳ {tg_first} जी, आपका लाइसेंस अपडेट हो रहा है... कृपया प्रतीक्षा करें।"
+    else:
+        progress_text = f"⏳ {tg_first}, your licence is being updated... Please wait."
+
+    progress_msg = await update.message.reply_text(progress_text)
+
     try:
-        # 🔁 Direct GitHub update with account_type
         await update_github_licence(mt5, name, broker, account_type)
+
+        # Success message (still uses the licence name)
         if lang == "hi":
-            msg = (
-                f"✅ धन्यवाद! आपके बॉट के लिए लाइसेंस बनाया गया है।\n"
+            final_msg = (
+                f"✅ धन्यवाद, {name}! आपके बॉट के लिए लाइसेंस बनाया गया है।\n"
                 f"MT5 आईडी: {mt5}\n"
                 f"नाम: {name}\n"
                 f"ब्रोकर: {broker}\n"
@@ -195,8 +205,8 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "2. जोखिम के बारे में अधिक जानने के लिए /risk_v1 का उपयोग करें।"
             )
         else:
-            msg = (
-                f"✅ Thank you! Your licence has been created for your bot.\n"
+            final_msg = (
+                f"✅ Thank you, {name}! Your licence has been created for your bot.\n"
                 f"MT5 ID: {mt5}\n"
                 f"Name: {name}\n"
                 f"Broker: {broker}\n"
@@ -211,22 +221,27 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "2. Know more about risk at /risk_v1"
             )
 
+        await progress_msg.edit_text(final_msg, parse_mode="HTML", disable_web_page_preview=True)
+
     except ValueError as e:
         logger.warning(str(e))
         if lang == "hi":
-            msg = f"❌ एमटी5 आईडी {mt5} पहले से मौजूद है। कृपया नई आईडी के साथ /get_licence_v1 से प्रयास करें।"
+            error_msg = f"❌ एमटी5 आईडी {mt5} पहले से मौजूद है। कृपया नई आईडी के साथ /get_licence_v1 से प्रयास करें।"
         else:
-            msg = f"❌ MT5 ID {mt5} already exists. Please try again with a different ID using /get_licence_v1."
+            error_msg = f"❌ MT5 ID {mt5} already exists. Please try again with a different ID using /get_licence_v1."
+        await progress_msg.edit_text(error_msg)
+
     except Exception as e:
         logger.error(f"GitHub update failed: {e}")
         if lang == "hi":
-            msg = "❌ सर्वर त्रुटि। कृपया बाद में पुनः प्रयास करें।"
+            error_msg = "❌ सर्वर त्रुटि। कृपया बाद में पुनः प्रयास करें।"
         else:
-            msg = "❌ Server error. Please try again later."
-
-    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
+            error_msg = "❌ Server error. Please try again later."
+        await progress_msg.edit_text(error_msg)
 
     return ConversationHandler.END
+
+
 
 # ==================== BUILD HANDLER ====================
 licence_conv = ConversationHandler(
