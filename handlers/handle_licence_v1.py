@@ -12,7 +12,7 @@ import base64
 from datetime import datetime, timedelta
 import httpx
 
-from config import GITHUB_TOKEN, GITHUB_API_URL, BRANCH
+from config import GITHUB_TOKEN, GITHUB_API_URL_V1, BRANCH
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ async def update_github_licence(mt5_id: str, name: str, broker: str, account_typ
     }
     async with httpx.AsyncClient(timeout=20.0) as client:
         # 1. Get file metadata and content
-        resp = await client.get(GITHUB_API_URL, headers=headers, params={"ref": BRANCH})
+        resp = await client.get(GITHUB_API_URL_V1, headers=headers, params={"ref": BRANCH})
         resp.raise_for_status()
         meta = resp.json()
         sha = meta["sha"]
@@ -67,7 +67,7 @@ async def update_github_licence(mt5_id: str, name: str, broker: str, account_typ
             "sha": sha,
             "branch": BRANCH
         }
-        resp = await client.put(GITHUB_API_URL, headers=headers, json=payload)
+        resp = await client.put(GITHUB_API_URL_V1, headers=headers, json=payload)
         resp.raise_for_status()
         return resp.json()
 
@@ -244,7 +244,7 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ==================== BUILD HANDLER ====================
-licence_conv = ConversationHandler(
+licence_conv_v1 = ConversationHandler(
     entry_points=[CommandHandler("get_licence_v1", licence_start)],
     states={
         ASK_MT5: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_mt5)],

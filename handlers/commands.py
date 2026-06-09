@@ -15,25 +15,45 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     if lang == "hi":
         msg = (
-            "👋 आपका स्वागत है! उपलब्ध कमांड्स: [अभी सब कुछ फ्री है]\n\n"
+            "👋 आपका स्वागत है! [अभी सब कुछ फ्री है]\n\n"
             "/start – यह मेनू दिखाएं\n"
-            "/get_dsq_v1 – ग्रिड बॉट V1 संस्करण डाउनलोड करें\n"
+            "/change_lang – भाषा बदलें (English ↔ हिंदी)\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "🤖 <b>Bot DSQ V1</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "/get_dsq_v1 – ग्रिड बॉट V1 डाउनलोड करें\n"
             "/get_licence_v1 – लाइसेंस फॉर्म\n"
-            "/get_setup_instruction_v1 – सेटअप निर्देश वीडियो लिंक\n"
-            "/risk_v1 – चलाने से पहले अपना जोखिम जानें\n"
-            "/change_lang – भाषा बदलें (English ↔ हिंदी)"
+            "/get_setup_instruction_v1 – सेटअप निर्देश\n"
+            "/risk_v1 – जोखिम जानकारी\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "🤖 <b>Bot DSQ V2</b> (जल्द आ रहा है)\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "/get_dsq_v2 – ग्रिड बॉट V2 डाउनलोड करें\n"
+            "/get_licence_v2 – लाइसेंस फॉर्म\n"
+            "/get_setup_instruction_v2 – सेटअप निर्देश\n"
+            "/risk_v2 – जोखिम जानकारी"
         )
     else:
         msg = (
-            "👋 Welcome! Available commands: [Everything is free for Now]\n\n"
+            "👋 Welcome! [Everything is free for now]\n\n"
             "/start – Show this menu\n"
-            "/get_dsq_v1 – Download Grid bot V1 version\n"
+            "/change_lang – Toggle language (English ↔ हिंदी)\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "🤖 <b>Bot DSQ V1</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "/get_dsq_v1 – Download Grid bot V1\n"
             "/get_licence_v1 – Licence form\n"
-            "/get_setup_instruction_v1 – Setup Instruction Video links\n"
-            "/risk_v1 – Know your risk before you run\n"
-            "/change_lang – Toggle language (English ↔ हिंदी)"
+            "/get_setup_instruction_v1 – Setup instructions\n"
+            "/risk_v1 – Risk information\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "🤖 <b>Bot DSQ V2</b> (coming soon)\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "/get_dsq_v2 – Download Grid bot V2\n"
+            "/get_licence_v2 – Licence form\n"
+            "/get_setup_instruction_v2 – Setup instructions\n"
+            "/risk_v2 – Risk information"
         )
-    await update.message.reply_text(msg)
+    await update.message.reply_text(msg, parse_mode="HTML")
 
 async def change_lang(update: Update, context: ContextTypes.DEFAULT_TYPE):
     current = get_lang(context)
@@ -164,15 +184,64 @@ async def risk_v1(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     await update.message.reply_text(msg, parse_mode="HTML")
 
+# ==================== V2 PLACEHOLDER HANDLERS ====================
+
+
+async def get_dsq_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = (
+            "📦 ग्रिड बॉट V2 जल्द ही अपलोड किया जाएगा। कृपया बाद में प्रयास करें।\n\n"
+            "लाइसेंस के लिए आवेदन करें – प्रति उपयोगकर्ता दो लाइसेंस मिलेंगे:\n"
+            "1. डेमो अकाउंट\n"
+            "2. रियल अकाउंट"
+        )
+    else:
+        msg = (
+            "📦 Grid bot V2 will be uploaded soon. Please check back later.\n\n"
+            "Apply for Licence – you will get two licences per user:\n"
+            "1. Demo account\n"
+            "2. Real account"
+        )
+    await update.message.reply_text(msg)
+
+
+async def get_setup_instruction_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = "🛠️ V2 सेटअप गाइड जल्द ही उपलब्ध होगी।"
+    else:
+        msg = "🛠️ V2 setup guide will be available soon."
+    await update.message.reply_text(msg)
+
+async def risk_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = "⚠️ V2 जोखिम जानकारी जल्द ही प्रकाशित की जाएगी।"
+    else:
+        msg = "⚠️ V2 risk information will be published soon."
+    await update.message.reply_text(msg)
+
 # ==================== HANDLER LIST ====================
-# Import the licence conversation from its own file
-from handlers.handle_licence import licence_conv
+from handlers.handle_licence_v1 import licence_conv_v1       # V1 licence
+from handlers.handle_licence_v2 import licence_conv_v2 # V2 licence (new file)
 
 handlers = [
+    licence_conv_v1,          # /get_licence_v1  (must be first, as before)
+    licence_conv_v2,       # /get_licence_v2
+
     CommandHandler("start", start),
     CommandHandler("change_lang", change_lang),
+
+    # V1 commands
     CommandHandler("get_dsq_v1", get_dsq_v1),
     CommandHandler("get_setup_instruction_v1", get_setup_instruction_v1),
     CommandHandler("risk_v1", risk_v1),
-    licence_conv,   # /get_licence_v1
+
+    # V2 commands (placeholders)
+    CommandHandler("get_dsq_v2", get_dsq_v2),
+    CommandHandler("get_setup_instruction_v2", get_setup_instruction_v2),
+    CommandHandler("risk_v2", risk_v1),
 ]
+
+
