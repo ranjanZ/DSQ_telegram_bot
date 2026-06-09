@@ -14,7 +14,6 @@ import httpx
 
 from config import GITHUB_TOKEN, GITHUB_API_URL_V2, BRANCH
 
-
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -101,6 +100,16 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ==================== STEP 1: ACCOUNT INFO + CONFIRMATION ====================
 async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # 🔁 If the command was used in a group, redirect to private chat
+    if update.effective_chat.type != "private":
+        lang = get_lang(context)
+        if lang == "hi":
+            msg = "कृपया लाइसेंस प्रक्रिया जारी रखने के लिए मुझे[telegram bot ] निजी संदेश भेजें।"
+        else:
+            msg = "Please send me[telegram bot] a private message to continue the licence process."
+        await update.message.reply_text(msg)
+        return ConversationHandler.END
+
     lang = get_lang(context)
     if lang == "hi":
         msg = (
@@ -136,13 +145,10 @@ async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return SHOW_ACCOUNT_INFO
 
 async def confirm_partner_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Check if the user replied with 'yes' / 'हाँ' to proceed."""
     lang = get_lang(context)
     answer = update.message.text.strip().lower()
-    # Accept "yes", "y", "haan", "हाँ" (and variations)
     positive_answers = {"yes", "y", "haan", "हाँ", "हां"}
     if answer in positive_answers:
-        # Proceed to MT5 ID
         if lang == "hi":
             msg = "✅ धन्यवाद! अब <b>चरण 2:</b> अपनी <b>MT5 आईडी</b> भेजें (उदा. 12345678):"
         else:
@@ -150,7 +156,6 @@ async def confirm_partner_code(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(msg, parse_mode="HTML")
         return ASK_MT5
     else:
-        # Re‑ask for confirmation
         if lang == "hi":
             msg = "❌ कृपया <b>Yes</b> या <b>हाँ</b> भेजें, या /cancel से रद्द करें।"
         else:
