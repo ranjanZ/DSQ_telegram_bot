@@ -1,0 +1,260 @@
+[2026-06-10 01:12:10] Ranjan Mondal (@None) (id:912944760) → sadas
+[2026-06-10 01:17:32] Ranjan Mondal (@None) (id:912944760) → dsfsd
+[2026-06-10 01:19:36] Ranjan Mondal (@None) (id:912944760) → fasf'
+[2026-06-10 01:19:36] Ranjan Mondal (@None) (id:912944760) → fasf'
+[2026-06-10 01:19:47] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 01:20:36] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-10 01:22:27] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-10 01:22:34] Ranjan Mondal (@None) (id:912944760) → /cancel
+[2026-06-10 01:22:37] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 01:22:40] Ranjan Mondal (@None) (id:912944760) → /risk_v2
+[2026-06-10 01:22:49] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-10 01:22:51] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-10 01:22:57] Ranjan Mondal (@None) (id:912944760) → /change_lang
+[2026-06-10 01:23:00] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-10 01:23:05] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-10 01:23:08] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-06-10 01:23:12] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v1
+[2026-06-10 01:23:18] Ranjan Mondal (@None) (id:912944760) → /change_lang
+[2026-06-10 01:23:27] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 01:23:30] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-06-10 06:53:10] Nirmal Neeraf (@None) (id:579852535) → /start
+[2026-06-10 06:53:30] Nirmal Neeraf (@None) (id:579852535) → /get_licence_v2@dsq_fx_bot
+[2026-06-10 06:53:48] Nirmal Neeraf (@None) (id:579852535) → /start
+[2026-06-10 06:59:29] Nirmal Neeraf (@None) (id:579852535) → /get_licence_v2
+[2026-06-10 09:31:41] Ana (@None) (id:648123977) → /get_licence_v2@dsq_fx_bot
+[2026-06-10 09:31:56] Girish Chandra Meher (@None) (id:8385180491) → /get_licence_v2@dsq_fx_bot
+[2026-06-10 09:32:11] Ana (@None) (id:648123977) → /start
+[2026-06-10 09:32:15] Ana (@None) (id:648123977) → /get_licence_v2
+[2026-06-10 09:32:24] Ana (@None) (id:648123977) → yes
+[2026-06-10 10:02:37] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-10 10:14:26] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 10:15:40] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 10:19:35] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 10:19:54] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2@dsq_fx_bot
+[2026-06-10 10:20:10] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-10 10:20:16] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-10 10:21:17] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-10 10:21:29] Ranjan Mondal (@None) (id:912944760) → 5432985
+[2026-06-10 10:21:36] Ranjan Mondal (@None) (id:912944760) → Ranjan
+[2026-06-10 10:21:41] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-10 10:21:49] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-06-10 12:09:07] SAMM (@samm_opx) (id:7846968242) → /get_setup_instruction_v2
+[2026-06-10 12:09:11] SAMM (@samm_opx) (id:7846968242) → /get_dsq_v2
+[2026-06-10 15:10:32] SAMM (@samm_opx) (id:7846968242) → /get_setup_instruction_v2
+[2026-06-10 15:10:33] SAMM (@samm_opx) (id:7846968242) → /get_dsq_v2
+[2026-06-11 01:25:38] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-11 01:25:43] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-11 01:25:46] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v1
+[2026-06-11 01:35:48] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-11 01:35:50] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-11 01:36:13] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-11 01:36:17] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-11 01:40:28] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-06-11 01:40:40] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-11 01:40:57] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-11 01:41:11] Ranjan Mondal (@None) (id:912944760) → 3245
+[2026-06-11 01:41:16] Ranjan Mondal (@None) (id:912944760) → hsdf
+[2026-06-11 01:41:21] Ranjan Mondal (@None) (id:912944760) → Vantage
+[2026-06-11 01:41:35] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-06-11 01:42:18] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-06-11 01:49:13] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-11 01:49:14] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-11 01:49:31] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-11 01:49:42] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-11 01:49:47] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-11 01:49:50] Ranjan Mondal (@None) (id:912944760) → 4534534
+[2026-06-11 01:54:00] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-11 01:54:03] SAMM (@samm_opx) (id:7846968242) → /get_dsq_v2
+[2026-06-11 01:54:55] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2@dsq_fx_bot
+[2026-06-11 02:34:52] Ranjan Mondal (@None) (id:912944760) → /change_lang
+[2026-06-11 02:34:56] Ranjan Mondal (@None) (id:912944760) → /change_lang
+[2026-06-14 20:51:38] SAMM (@samm_opx) (id:7846968242) → /start
+[2026-06-14 20:51:41] SAMM (@samm_opx) (id:7846968242) → /get_dsq_v1
+[2026-06-14 20:51:44] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-14 20:51:53] SAMM (@samm_opx) (id:7846968242) → /get_setup_instruction_v1
+[2026-06-14 20:51:54] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 20:51:57] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-14 20:54:45] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 20:55:11] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 20:55:14] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 20:55:27] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 20:55:46] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 20:55:52] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 21:00:09] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 21:00:13] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-06-14 21:00:16] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-06-14 21:00:23] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-06-14 21:00:28] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-06-14 21:02:38] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-06-14 21:02:43] Ranjan Mondal (@None) (id:912944760) → 6756588
+[2026-06-14 21:02:46] Ranjan Mondal (@None) (id:912944760) → drrr
+[2026-06-14 21:02:50] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-14 21:02:59] Ranjan Mondal (@None) (id:912944760) → Real
+[2026-06-14 21:11:00] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 21:57:46] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 21:58:04] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 21:58:19] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-14 21:58:38] Ranjan Mondal (@None) (id:912944760) → 381832208
+[2026-06-14 21:58:48] Ranjan Mondal (@None) (id:912944760) → Ranjan Mondal
+[2026-06-14 21:58:52] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-14 21:58:58] Ranjan Mondal (@None) (id:912944760) → Real
+[2026-06-14 21:59:40] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 21:59:44] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-14 21:59:51] Ranjan Mondal (@None) (id:912944760) → 452345
+[2026-06-14 21:59:56] Ranjan Mondal (@None) (id:912944760) → Ranjan
+[2026-06-14 21:59:58] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-14 22:00:01] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-06-14 22:00:17] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 22:00:24] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-14 22:57:43] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:01:50] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:02:04] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:02:13] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:02:59] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:03:18] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 23:03:21] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 23:03:25] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 23:08:57] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 23:09:49] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 23:09:52] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:09:55] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 23:09:58] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 23:10:06] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-14 23:10:30] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 23:11:21] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-14 23:12:26] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-14 23:12:34] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-14 23:12:39] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-15 01:38:33] SAMM (@samm_opx) (id:7846968242) → /start
+[2026-06-15 01:38:40] SAMM (@samm_opx) (id:7846968242) → /get_dsq_v1
+[2026-06-15 01:38:56] SAMM (@samm_opx) (id:7846968242) → /get_setup_instruction_v1
+[2026-06-15 11:03:31] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-15 11:03:38] SAMM (@samm_opx) (id:7846968242) → 900909544407
+[2026-06-15 11:03:50] SAMM (@samm_opx) (id:7846968242) → sohel ansari
+[2026-06-15 11:04:30] SAMM (@samm_opx) (id:7846968242) → StoxPips-Trade
+[2026-06-15 11:04:58] SAMM (@samm_opx) (id:7846968242) → demo
+[2026-06-16 00:11:07] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:11:39] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2@dsq_fx_bot
+[2026-06-16 00:12:17] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:13:23] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:13:41] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:14:10] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-16 00:16:29] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:16:44] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:16:53] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:17:12] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-16 00:17:53] Ranjan Mondal (@None) (id:912944760) → /clear
+[2026-06-16 00:18:51] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:19:17] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:19:33] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-16 00:20:03] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-16 00:20:19] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-16 00:20:41] Ranjan Mondal (@None) (id:912944760) → 7673646
+[2026-06-16 00:20:48] Ranjan Mondal (@None) (id:912944760) → Ranjan Mondal
+[2026-06-16 00:20:56] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-16 00:21:24] Ranjan Mondal (@None) (id:912944760) → demo
+[2026-06-16 00:21:34] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:21:37] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-16 00:27:29] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:27:32] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-16 00:28:49] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:29:00] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-16 00:29:16] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-16 00:29:24] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-16 00:29:39] Ranjan Mondal (@None) (id:912944760) → 4736763
+[2026-06-16 00:29:51] Ranjan Mondal (@None) (id:912944760) → Ranjan Mondal
+[2026-06-16 00:29:59] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-16 00:30:11] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-06-16 00:30:25] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:30:32] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-16 00:30:38] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-16 00:30:45] Ranjan Mondal (@None) (id:912944760) → 8735456
+[2026-06-16 00:30:50] Ranjan Mondal (@None) (id:912944760) → Ranjan Mondal
+[2026-06-16 00:30:53] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-16 00:30:55] Ranjan Mondal (@None) (id:912944760) → Real
+[2026-06-16 00:31:28] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:31:31] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-16 00:32:28] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 00:32:37] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2
+[2026-06-16 00:33:02] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-16 00:33:06] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-16 00:33:16] Ranjan Mondal (@None) (id:912944760) → 6564424
+[2026-06-16 00:33:25] Ranjan Mondal (@None) (id:912944760) → Rahul Roy
+[2026-06-16 00:33:34] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-06-16 00:33:40] Ranjan Mondal (@None) (id:912944760) → Real
+[2026-06-16 00:34:14] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-06-16 01:18:04] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v2@dsq_fx_bot
+[2026-06-16 01:31:27] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-16 01:31:33] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-16 01:31:38] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-16 01:31:40] Ranjan Mondal (@None) (id:912944760) → 11547356
+[2026-06-16 01:31:43] Ranjan Mondal (@None) (id:912944760) → Ranjan
+[2026-06-16 01:31:47] Ranjan Mondal (@None) (id:912944760) → Vantage
+[2026-06-16 01:31:50] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-06-16 09:23:08] Swarit Bendre (@swarit36699) (id:7811059174) → /risk_v1@dsq_fx_bot
+[2026-06-23 12:53:59] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-23 12:54:11] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-23 12:54:45] SAMM (@samm_opx) (id:7846968242) → /start
+[2026-06-23 13:02:00] SAMM (@samm_opx) (id:7846968242) → /start
+[2026-06-23 13:02:03] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-23 13:02:16] SAMM (@samm_opx) (id:7846968242) → 5085342
+[2026-06-23 13:02:26] SAMM (@samm_opx) (id:7846968242) → sohel ansari
+[2026-06-23 13:02:43] SAMM (@samm_opx) (id:7846968242) → BlueBerryMarketsSVG-Live
+[2026-06-23 13:02:50] SAMM (@samm_opx) (id:7846968242) → real
+[2026-06-25 06:03:59] Al Amin (@Aktrader990) (id:6368298537) → /get_dsq_v2
+[2026-06-25 09:58:10] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-06-25 10:28:18] Nirmal Neeraf (@None) (id:579852535) → /get_licence_v2@dsq_fx_bot
+[2026-06-25 10:28:43] Nirmal Neeraf (@None) (id:579852535) → /get_licence_v2
+[2026-06-25 10:29:07] Nirmal Neeraf (@None) (id:579852535) → 25671597
+[2026-06-25 10:29:12] Nirmal Neeraf (@None) (id:579852535) → No
+[2026-06-25 10:29:17] Nirmal Neeraf (@None) (id:579852535) → /cancel
+[2026-06-25 10:39:35] Nirmal Neeraf (@None) (id:579852535) → Yes
+[2026-06-25 11:42:34] Nirmal Neeraf (@None) (id:579852535) → /get_licence_v2
+[2026-06-25 11:42:41] Nirmal Neeraf (@None) (id:579852535) → Yes
+[2026-06-25 11:43:08] Nirmal Neeraf (@None) (id:579852535) → 25671597
+[2026-06-25 11:43:14] Nirmal Neeraf (@None) (id:579852535) → Nirmal singh
+[2026-06-25 11:43:22] Nirmal Neeraf (@None) (id:579852535) → Vantage
+[2026-06-25 11:43:28] Nirmal Neeraf (@None) (id:579852535) → Demo
+[2026-06-25 11:43:48] Nirmal Neeraf (@None) (id:579852535) → Okay
+[2026-06-25 12:15:13] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2@dsq_fx_bot
+[2026-06-25 12:15:33] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-25 12:15:38] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-06-25 12:15:41] Ranjan Mondal (@None) (id:912944760) → 25671597
+[2026-06-25 12:15:52] Ranjan Mondal (@None) (id:912944760) → Nirmal
+[2026-06-25 12:16:01] Ranjan Mondal (@None) (id:912944760) → Vantage
+[2026-06-25 12:16:04] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-06-25 13:23:31] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-06-25 23:03:28] SAMM (@samm_opx) (id:7846968242) → /start
+[2026-06-25 23:03:32] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-25 23:03:38] SAMM (@samm_opx) (id:7846968242) → 161264905
+[2026-06-25 23:03:48] SAMM (@samm_opx) (id:7846968242) → sohel ansari
+[2026-06-25 23:04:02] SAMM (@samm_opx) (id:7846968242) → AscendsGlobalMarkets-Server
+[2026-06-25 23:04:09] SAMM (@samm_opx) (id:7846968242) → real
+[2026-06-25 23:05:35] SAMM (@samm_opx) (id:7846968242) → /start
+[2026-06-25 23:05:41] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-25 23:05:49] SAMM (@samm_opx) (id:7846968242) → 161264905
+[2026-06-25 23:06:01] SAMM (@samm_opx) (id:7846968242) → sohel ansari
+[2026-06-25 23:06:14] SAMM (@samm_opx) (id:7846968242) → AscendsGlobalMarkets-Server
+[2026-06-25 23:06:26] SAMM (@samm_opx) (id:7846968242) → real
+[2026-06-25 23:06:34] SAMM (@samm_opx) (id:7846968242) → /get_licence_v1
+[2026-06-26 15:28:57] Al Amin (@Aktrader990) (id:6368298537) → /get_dsq_v1@dsq_fx_bot
+[2026-06-26 15:28:59] Al Amin (@Aktrader990) (id:6368298537) → /start@dsq_fx_bot
+[2026-08-01 23:56:25] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-01 23:56:57] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-01 23:57:18] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-08-01 23:57:26] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v2
+[2026-08-01 23:57:36] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-08-01 23:57:42] Ranjan Mondal (@None) (id:912944760) → abc
+[2026-08-01 23:57:48] Ranjan Mondal (@None) (id:912944760) → rsdfdsf
+[2026-08-01 23:57:52] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-08-01 23:57:54] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-08-01 23:59:36] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-01 23:59:48] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v1
+[2026-08-01 23:59:55] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-08-02 00:01:45] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-08-02 00:02:08] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 00:02:29] Ranjan Mondal (@None) (id:912944760) → /risk_v1
+[2026-08-02 00:02:34] Ranjan Mondal (@None) (id:912944760) → /risk_v2
+[2026-08-02 00:02:40] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 00:07:38] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1

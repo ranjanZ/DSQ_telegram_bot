@@ -46,7 +46,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "/get_setup_instruction_v1 – Setup instructions\n"
             "/risk_v1 – Risk information\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
-            "🤖 <b>Bot DSQ V2</b> (coming soon)\n"
+            "🤖 <b>Bot DSQ V2</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v2 – Download Grid bot V2\n"
             "/get_licence_v2 – Licence form\n"
@@ -111,7 +111,7 @@ async def get_setup_instruction_v1(update: Update, context: ContextTypes.DEFAULT
             "In the Navigator panel (right side), find dsq_v1 under Expert Advisors.\n\n"
             "4. <b>Activate your Bot Licence</b>\n"
             "Use /get_licence_v1\n\n\n\n\n\n\n\n"
-            "🌐 <b>Setup Guide(from DSQ Web Page)</b>\n"
+            "🌐 <b>Setup Guide(from DSQ Web Page [This will be up after 13th of June. Get license directly from Telegram bot])</b>\n"
             "https://shorturl.at/YU5yw\n"
             "Open the link above, go to \"Free Bot Setup\" and follow the instructions to set up in your computer for free.\n\n"
             "📹 <b>Instruction Videos</b>\n"
@@ -185,34 +185,79 @@ async def risk_v1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(msg, parse_mode="HTML")
 
 # ==================== V2 PLACEHOLDER HANDLERS ====================
-
-
 async def get_dsq_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    DOWNLOAD_URL_V2 = "https://github.com/ranjanZ/DSQ_Page/raw/refs/heads/main/data/bots/dsq_v2.ex5"
     lang = get_lang(context)
     if lang == "hi":
+        label = "यहां क्लिक करके डाउनलोड करें"
         msg = (
-            "📦 ग्रिड बॉट V2 जल्द ही अपलोड किया जाएगा। कृपया बाद में प्रयास करें।\n\n"
+            f"📦 ग्रिड बॉट V2 संस्करण डाउनलोड करें:\n"
+            f"<a href=\"{DOWNLOAD_URL_V2}\">{label}</a>\n\n"
             "लाइसेंस के लिए आवेदन करें – प्रति उपयोगकर्ता दो लाइसेंस मिलेंगे:\n"
             "1. डेमो अकाउंट\n"
             "2. रियल अकाउंट"
         )
     else:
+        label = "Click here to download"
         msg = (
-            "📦 Grid bot V2 will be uploaded soon. Please check back later.\n\n"
+            f"📦 Download Grid bot V2 version:\n"
+            f"<a href=\"{DOWNLOAD_URL_V2}\">{label}</a>\n\n"
             "Apply for Licence – you will get two licences per user:\n"
             "1. Demo account\n"
             "2. Real account"
         )
-    await update.message.reply_text(msg)
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
 
 
 async def get_setup_instruction_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     if lang == "hi":
-        msg = "🛠️ V2 सेटअप गाइड जल्द ही उपलब्ध होगी।"
+        msg = (
+            "🛠 <b>V2 सेटअप गाइड (टेलीग्राम से)</b>\n\n"
+            "<b>1. लाइसेंस एक्टिवेट करें</b>\n"
+            "⚠️ <b>चरण 1:</b> किसी भी ब्रोकर (XM / Exness / Vantage / Roboforex) में पार्टनर कोड जोड़ें:\n"
+            "▪ Vantage: <code>VcM6U1DW</code>\n"
+            "▪ Roboforex: <code>zrfhm</code>\n"
+            "▪ XM: <code>4299V</code>\n"
+            "▪ Exness: <code>c_niibgmkreg</code>\n\n"
+            "<b>चरण 2:</b> /get_licence_v2 का उपयोग करें और अपनी MT5 आईडी, नाम, ब्रोकर और खाता प्रकार (डेमो/रियल) भेजें – बॉट आपका लाइसेंस एक्टिवेट कर देगा।\n\n"
+            "<b>2. MT5 डाउनलोड करें और लॉगिन करें</b>\n"
+            "आधिकारिक वेबसाइट metatrader5.com से MT5 डाउनलोड करें।\n"
+            "अपने ब्रोकर के User ID, Password और Server से लॉगिन करें।\n\n"
+            "<b>3. MetaTrader सेटिंग्स</b>\n"
+            "Tools → Options → Expert Advisors:\n"
+            "✅ Allow Algorithmic Trading\n"
+            "✅ Allow Web Request for listed URL → जोड़ें: https://raw.githubusercontent.com\n\n"
+            "<b>4. एल्गो बॉट डाउनलोड करें (dsq_v2)</b>\n"
+            "/get_dsq_v2 का उपयोग करें, फिर डाउनलोड की गई फाइल पर डबल‑क्लिक करें → यह MetaTrader में जुड़ जाएगी।\n"
+            "Navigator पैनल (दाईं ओर) में dsq_v2 को Expert Advisors के अंतर्गत देखें।\n\n"
+            "📹 <b>सेटअप वीडियो:</b> जल्द ही उपलब्ध होगा।"
+        )
     else:
-        msg = "🛠️ V2 setup guide will be available soon."
-    await update.message.reply_text(msg)
+        msg = (
+            "🛠 <b>V2 Setup Guide (from Telegram)</b>\n\n"
+            "<b>1. Activate your Licence</b>\n"
+            "⚠️ <b>Step 1:</b> Add the partner code for any broker (XM / Exness / Vantage / Roboforex):\n"
+            "▪ Vantage: <code>VcM6U1DW</code>\n"
+            "▪ Roboforex: <code>zrfhm</code>\n"
+            "▪ XM: <code>4299V</code>\n"
+            "▪ Exness: <code>c_niibgmkreg</code>\n\n"
+            "<b>Step 2:</b> Use /get_licence_v2 and send your MT5 ID, Name, Broker, and Account type (Demo/Real) – the bot will activate your licence.\n\n"
+            "<b>2. Download MT5 &amp; Login</b>\n"
+            "Download MT5 from the official website: metatrader5.com\n"
+            "Login with your broker’s User ID, Password, and Server.\n\n"
+            "<b>3. MetaTrader Settings</b>\n"
+            "Tools → Options → Expert Advisors:\n"
+            "✅ Allow Algorithmic Trading\n"
+            "✅ Allow Web Request for listed URL → Add: https://raw.githubusercontent.com\n\n"
+            "<b>4. Download the Algo Bot (dsq_v2)</b>\n"
+            "Use /get_dsq_v2, then double‑click the downloaded file → it will be added to MetaTrader.\n"
+            "In the Navigator panel (right side), find dsq_v2 under Expert Advisors.\n\n"
+            "📹 <b>Setup Video:</b> Coming soon."
+        )
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
+
+
 
 async def risk_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)

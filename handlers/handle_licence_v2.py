@@ -42,7 +42,7 @@ async def update_github_licence_v2(mt5_id: str, name: str, broker: str, account_
         if any(u.get("user_id") == mt5_id for u in users_list):
             raise ValueError(f"MT5 ID {mt5_id} already exists.")
 
-        valid_upto = (datetime.utcnow() + timedelta(days=90)).strftime("%d-%m-%Y")
+        valid_upto = (datetime.utcnow() + timedelta(days=1)).strftime("%d-%m-%Y")
         new_user = {
             "user_id": mt5_id,
             "server_name": "unknown",
@@ -100,13 +100,12 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ==================== STEP 1: ACCOUNT INFO + CONFIRMATION ====================
 async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # 🔁 If the command was used in a group, redirect to private chat
     if update.effective_chat.type != "private":
         lang = get_lang(context)
         if lang == "hi":
-            msg = "कृपया लाइसेंस प्रक्रिया जारी रखने के लिए मुझे[telegram bot ] निजी संदेश भेजें।"
+            msg = "कृपया लाइसेंस प्रक्रिया जारी रखने के लिए मुझे [telegram bot] निजी संदेश भेजें।"
         else:
-            msg = "Please send me[telegram bot] a private message to continue the licence process."
+            msg = "Please send me [telegram bot] a private message to continue the licence process."
         await update.message.reply_text(msg)
         return ConversationHandler.END
 
@@ -117,11 +116,13 @@ async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "यदि आपके पास खाता नहीं है, तो आप नीचे दिए गए लिंक से खाता खोल सकते हैं:\n\n"
             "🔹 <a href='https://vantagemarkets.com/open-live-account/?affid=MjMxNDEyNzM=&invitecode=VcM6U1DW'>Vantage खाता खोलें</a>\n"
             "🔹 <a href='https://my.roboforex.com/en/?a=zrfhm'>Roboforex खाता खोलें</a>\n"
-            "🔹 <a href='https://affs.click/mvjlf'>XM खाता खोलें</a>\n\n"
-            "यदि आपके पास पहले से XM / Vantage / Roboforex खाता है, तो कृपया पार्टनर कोड जोड़ें:\n"
+            "🔹 <a href='https://affs.click/mvjlf'>XM खाता खोलें</a>\n"
+            "🔹 <a href='https://one.exnessonelink.com/a/c_niibgmkreg'>Exness खाता खोलें</a>\n\n"
+            "यदि आपके पास पहले से XM / Vantage / Roboforex / Exness खाता है, तो कृपया पार्टनर कोड जोड़ें:\n"
             "▪ Vantage Partner Code: <code>VcM6U1DW</code>\n"
             "▪ Roboforex Partner Code: <code>zrfhm</code>\n"
-            "▪ XM Partner Code: <code>4299V</code>\n\n"
+            "▪ XM Partner Code: <code>4299V</code> — <a href='https://youtu.be/XoasAO63nfc'>गाइड वीडियो</a>\n"
+            "▪ Exness Partner Code: <code>c_niibgmkreg</code>\n\n"
             "⚠️ क्या आपने पार्टनर कोड जोड़ दिया है?\n"
             "यदि हाँ, तो <b>Yes</b> या <b>हाँ</b> भेजें।\n"
             "/cancel से रद्द करें।"
@@ -132,11 +133,13 @@ async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "If you don't have an account, you can open one from the links below:\n\n"
             "🔹 <a href='https://vantagemarkets.com/open-live-account/?affid=MjMxNDEyNzM=&invitecode=VcM6U1DW'>Open Vantage Account</a>\n"
             "🔹 <a href='https://my.roboforex.com/en/?a=zrfhm'>Open Roboforex Account</a>\n"
-            "🔹 <a href='https://affs.click/mvjlf'>Open XM Account</a>\n\n"
-            "If you already have an XM / Vantage / Roboforex account, add the partner code:\n"
+            "🔹 <a href='https://affs.click/mvjlf'>Open XM Account</a>\n"
+            "🔹 <a href='https://one.exnessonelink.com/a/c_niibgmkreg'>Open Exness Account</a>\n\n"
+            "If you already have an XM / Vantage / Roboforex / Exness account, add the partner code:\n"
             "▪ Vantage Partner Code: <code>VcM6U1DW</code>\n"
             "▪ Roboforex Partner Code: <code>zrfhm</code>\n"
-            "▪ XM Partner Code: <code>4299V</code>\n\n"
+            "▪ XM Partner Code: <code>4299V</code> — <a href='https://youtu.be/XoasAO63nfc'>Guide Video</a>\n"
+            "▪ Exness Partner Code: <code>c_niibgmkreg</code>\n\n"
             "⚠️ Have you added the partner code?\n"
             "If yes, send <b>Yes</b> (or <b>yes</b>).\n"
             "Send /cancel to abort."
