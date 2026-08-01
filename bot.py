@@ -10,6 +10,7 @@ from telegram.ext import (
 )
 from config import BOT_TOKEN
 from handlers.commands import handlers
+from chat_agent.telegram_integration import get_natural_language_handler
 
 # ==================== LOGGING SETUP ====================
 logging.basicConfig(
@@ -45,13 +46,17 @@ def main():
         MessageHandler(filters.ALL, log_every_message), group=-1
     )
 
-    # Your normal handlers (from commands.py)
+    # Your normal handlers (from commands.py) - group=0 by default
     for handler in handlers:
         app.add_handler(handler)
 
+    # 🤖 Natural language handler (fallback, group=1)
+    # This handles non-command messages using the LangGraph agent
+    app.add_handler(get_natural_language_handler(), group=1)
+
     app.add_error_handler(error_handler)
 
-    logging.info("🤖 Bot running. Press Ctrl+C to stop.")
+    logging.info("🤖 Bot running with AI agent. Press Ctrl+C to stop.")
     app.run_polling()
 
 if __name__ == "__main__":
