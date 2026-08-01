@@ -223,8 +223,7 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "✅ Allow Algorithmic Trading\n"
                 "✅ Allow Web Request for listed URL → जोड़ें: https://raw.githubusercontent.com\n\n"
                 "💡 <b>टिप्स:</b>\n"
-                "1. जब बाजार विपरीत दिशा में जाए तो Ctrl+E से बॉट रोकें और पोजीशन मैन्युअली बंद करें।\n"
-                "2. पूरी जोखिम जानकारी /risk_v2 पर देखें।"
+                "1. जब बाजार विपरीत दिशा में जाए तो Ctrl+E से बॉट रोकें और पोजीशन मैन्युअली बंद करें।"
             )
         else:
             final_msg = (
@@ -235,8 +234,7 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "✅ Allow Algorithmic Trading\n"
                 "✅ Allow Web Request for listed URL → Add: https://raw.githubusercontent.com\n\n"
                 "💡 <b>Tips:</b>\n"
-                "1. When market moves against your grid, press Ctrl+E to stop the bot and close positions manually.\n"
-                "2. See full risk info at /risk_v2"
+                "1. When market moves against your grid, press Ctrl+E to stop the bot and close positions manually."
             )
         await progress_msg.edit_text(final_msg, parse_mode="HTML", disable_web_page_preview=True)
 
