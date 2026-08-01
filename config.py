@@ -18,3 +18,11 @@ GITHUB_API_URL_V1 = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FILE_
 FILE_PATH_V2 = "V2_user_id.json"
 BRANCH = "main"
 GITHUB_API_URL_V2 = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FILE_PATH_V2}"
+
+#V3 file path and API URL
+FILE_PATH_V3 = "V3_user_id.json"
+GITHUB_API_URL_V3 = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FILE_PATH_V3}"
+
+#V4 file path and API URL
+FILE_PATH_V4 = "V4_user_id.json"
+GITHUB_API_URL_V4 = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{FILE_PATH_V4}"

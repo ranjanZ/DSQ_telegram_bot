@@ -12,7 +12,7 @@ import base64
 from datetime import datetime, timedelta
 import httpx
 
-from config import GITHUB_TOKEN, GITHUB_API_URL_V2, BRANCH
+from config import GITHUB_TOKEN, GITHUB_API_URL_V4, BRANCH
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,13 +24,13 @@ def get_lang(context: ContextTypes.DEFAULT_TYPE) -> str:
     return context.user_data.get("lang", "en")
 
 # ==================== GITHUB UPDATE ====================
-async def update_github_licence_v2(mt5_id: str, name: str, broker: str, account_type: str) -> dict:
+async def update_github_licence_v4(mt5_id: str, name: str, broker: str, account_type: str) -> dict:
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
+        "Accept": "application/vnd.github.v4+json"
     }
     async with httpx.AsyncClient(timeout=20.0) as client:
-        resp = await client.get(GITHUB_API_URL_V2, headers=headers, params={"ref": BRANCH})
+        resp = await client.get(GITHUB_API_URL_V4, headers=headers, params={"ref": BRANCH})
         resp.raise_for_status()
         meta = resp.json()
         sha = meta["sha"]
@@ -57,12 +57,12 @@ async def update_github_licence_v2(mt5_id: str, name: str, broker: str, account_
         new_content_str = json.dumps(data, indent=2)
         new_content_b64 = base64.b64encode(new_content_str.encode()).decode()
         payload = {
-            "message": f"Add V2 user {mt5_id} ({name})",
+            "message": f"Add V4 user {mt5_id} ({name})",
             "content": new_content_b64,
             "sha": sha,
             "branch": BRANCH
         }
-        resp = await client.put(GITHUB_API_URL_V2, headers=headers, json=payload)
+        resp = await client.put(GITHUB_API_URL_V4, headers=headers, json=payload)
         resp.raise_for_status()
         return resp.json()
 
@@ -72,9 +72,9 @@ async def timeout(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for key in ("licence_mt5", "licence_name", "licence_broker"):
         context.user_data.pop(key, None)
     if lang == "hi":
-        msg = "⌛ आपने बहुत अधिक समय लिया। कृपया /get_licence_v2 से पुनः प्रारंभ करें।"
+        msg = "⌛ आपने बहुत अधिक समय लिया। कृपया /get_licence_v4 से पुनः प्रारंभ करें।"
     else:
-        msg = "⌛ You took too long. Please start again with /get_licence_v2."
+        msg = "⌛ You took too long. Please start again with /get_licence_v4."
     if update and update.effective_chat:
         await update.effective_chat.send_message(msg)
     return ConversationHandler.END
@@ -84,9 +84,9 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for key in ("licence_mt5", "licence_name", "licence_broker"):
         context.user_data.pop(key, None)
     if lang == "hi":
-        msg = "❌ प्रक्रिया रद्द कर दी गई। /get_licence_v2 से पुनः प्रारंभ करें।"
+        msg = "❌ प्रक्रिया रद्द कर दी गई। /get_licence_v4 से पुनः प्रारंभ करें।"
     else:
-        msg = "❌ Process cancelled. Use /get_licence_v2 to start again."
+        msg = "❌ Process cancelled. Use /get_licence_v4 to start again."
     await update.message.reply_text(msg)
     return ConversationHandler.END
 
@@ -112,7 +112,7 @@ async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
     if lang == "hi":
         msg = (
-            "📋 <b>V2 लाइसेंस सक्रियण – चरण 1</b>\n\n"
+            "📋 <b>V4 लाइसेंस सक्रियण – चरण 1</b>\n\n"
             "यदि आपके पास खाता नहीं है, तो आप नीचे दिए गए लिंक से खाता खोल सकते हैं:\n\n"
             "🔹 <a href='https://vantagemarkets.com/open-live-account/?affid=MjMxNDEyNzM=&invitecode=VcM6U1DW'>Vantage खाता खोलें</a>\n"
             "🔹 <a href='https://my.roboforex.com/en/?a=zrfhm'>Roboforex खाता खोलें</a>\n"
@@ -129,7 +129,7 @@ async def licence_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     else:
         msg = (
-            "📋 <b>V2 Licence Activation – Step 1</b>\n\n"
+            "📋 <b>V4 Licence Activation – Step 1</b>\n\n"
             "If you don't have an account, you can open one from the links below:\n\n"
             "🔹 <a href='https://vantagemarkets.com/open-live-account/?affid=MjMxNDEyNzM=&invitecode=VcM6U1DW'>Open Vantage Account</a>\n"
             "🔹 <a href='https://my.roboforex.com/en/?a=zrfhm'>Open Roboforex Account</a>\n"
@@ -215,16 +215,16 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     tg_first = update.effective_user.first_name if update.effective_user else "there"
     if lang == "hi":
-        progress_text = f"⏳ {tg_first} जी, आपका V2 लाइसेंस अपडेट हो रहा है... कृपया प्रतीक्षा करें।"
+        progress_text = f"⏳ {tg_first} जी, आपका V4 लाइसेंस अपडेट हो रहा है... कृपया प्रतीक्षा करें।"
     else:
-        progress_text = f"⏳ {tg_first}, your V2 licence is being updated... Please wait."
+        progress_text = f"⏳ {tg_first}, your V4 licence is being updated... Please wait."
     progress_msg = await update.message.reply_text(progress_text)
 
     try:
-        await update_github_licence_v2(mt5, name, broker, account_type)
+        await update_github_licence_v4(mt5, name, broker, account_type)
         if lang == "hi":
             final_msg = (
-                f"✅ धन्यवाद, {name}! आपके V2 बॉट के लिए लाइसेंस बनाया गया है।\n"
+                f"✅ धन्यवाद, {name}! आपके V4 बॉट के लिए लाइसेंस बनाया गया है।\n"
                 f"MT5 आईडी: {mt5}\nनाम: {name}\nब्रोकर: {broker}\nखाता: {account_type.capitalize()}\n\n"
                 "⚙️ <b>लाइसेंस तभी काम करेगा जब:</b>\n"
                 "MetaTrader में, Tools → Options → Expert Advisors:\n"
@@ -232,11 +232,11 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "✅ Allow Web Request for listed URL → जोड़ें: https://raw.githubusercontent.com\n\n"
                 "💡 <b>टिप्स:</b>\n"
                 "1. जब बाजार विपरीत दिशा में जाए तो Ctrl+E से बॉट रोकें और पोजीशन मैन्युअली बंद करें।\n"
-                "2. Full risk info available via /risk_v2."
+                "2. Full risk info available via /risk_v4."
             )
         else:
             final_msg = (
-                f"✅ Thank you, {name}! Your V2 licence has been created for your bot.\n"
+                f"✅ Thank you, {name}! Your V4 licence has been created for your bot.\n"
                 f"MT5 ID: {mt5}\nName: {name}\nBroker: {broker}\nAccount: {account_type.capitalize()}\n\n"
                 "⚙️ <b>Licence will work only if:</b>\n"
                 "In MetaTrader, go to Tools → Options → Expert Advisors:\n"
@@ -244,16 +244,16 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "✅ Allow Web Request for listed URL → Add: https://raw.githubusercontent.com\n\n"
                 "💡 <b>Tips:</b>\n"
                 "1. When market moves against your grid, press Ctrl+E to stop the bot and close positions manually.\n"
-                "2. Full risk info available via /risk_v2."
+                "2. Full risk info available via /risk_v4."
             )
         await progress_msg.edit_text(final_msg, parse_mode="HTML", disable_web_page_preview=True)
 
     except ValueError as e:
         logger.warning(str(e))
         if lang == "hi":
-            error_msg = f"❌ एमटी5 आईडी {mt5} पहले से मौजूद है। कृपया नई आईडी के साथ /get_licence_v2 से प्रयास करें।"
+            error_msg = f"❌ एमटी5 आईडी {mt5} पहले से मौजूद है। कृपया नई आईडी के साथ /get_licence_v4 से प्रयास करें।"
         else:
-            error_msg = f"❌ MT5 ID {mt5} already exists. Please try again with a different ID using /get_licence_v2."
+            error_msg = f"❌ MT5 ID {mt5} already exists. Please try again with a different ID using /get_licence_v4."
         await progress_msg.edit_text(error_msg)
 
     except Exception as e:
@@ -267,8 +267,8 @@ async def ask_account_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 # ==================== BUILD CONVERSATION HANDLER ====================
-licence_conv_v2 = ConversationHandler(
-    entry_points=[CommandHandler("get_licence_v2", licence_start)],
+licence_conv_v4 = ConversationHandler(
+    entry_points=[CommandHandler("get_licence_v4", licence_start)],
     states={
         SHOW_ACCOUNT_INFO: [
             MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_partner_code)
