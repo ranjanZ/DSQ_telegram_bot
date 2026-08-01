@@ -230,6 +230,56 @@ async def get_dsq_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
 
+async def get_dsq_v3(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    DOWNLOAD_URL_V3 = "https://github.com/ranjanZ/DSQ_Page/raw/refs/heads/main/data/bots/dsq_v3.ex5"
+    lang = get_lang(context)
+    if lang == "hi":
+        label = "यहां क्लिक करके डाउनलोड करें"
+        msg = (
+            f"📦 ग्रिड बॉट V3 संस्करण डाउनलोड करें:\n"
+            f"<a href=\"{DOWNLOAD_URL_V3}\">{label}</a>\n\n"
+            "लाइसेंस के लिए आवेदन करें – प्रति उपयोगकर्ता दो लाइसेंस मिलेंगे:\n"
+            "1. डेमो अकाउंट\n"
+            "2. रियल अकाउंट"
+        )
+    else:
+        label = "Click here to download"
+        msg = (
+            f"📦 Download Grid bot V3 version:\n"
+            f"<a href=\"{DOWNLOAD_URL_V3}\">{label}</a>\n\n"
+            "Apply for Licence – you will get two licences per user:\n"
+            "1. Demo account\n"
+            "2. Real account"
+        )
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
+
+
+async def get_dsq_v4(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    DOWNLOAD_URL_V3 = "https://github.com/ranjanZ/DSQ_Page/raw/refs/heads/main/data/bots/dsq_v3.ex5"
+    lang = get_lang(context)
+    if lang == "hi":
+        label = "यहां क्लिक करके डाउनलोड करें"
+        msg = (
+            f"📦 ग्रिड बॉट V3 संस्करण डाउनलोड करें:\n"
+            f"<a href=\"{DOWNLOAD_URL_V3}\">{label}</a>\n\n"
+            "लाइसेंस के लिए आवेदन करें – प्रति उपयोगकर्ता दो लाइसेंस मिलेंगे:\n"
+            "1. डेमो अकाउंट\n"
+            "2. रियल अकाउंट"
+        )
+    else:
+        label = "Click here to download"
+        msg = (
+            f"📦 Download Grid bot V3 version:\n"
+            f"<a href=\"{DOWNLOAD_URL_V3}\">{label}</a>\n\n"
+            "Apply for Licence – you will get two licences per user:\n"
+            "1. Demo account\n"
+            "2. Real account"
+        )
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
+
+
+
+
 
 async def get_setup_instruction_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
@@ -316,13 +366,13 @@ handlers = [
 
     # V3 commands
     CommandHandler("get_dsq_v3", get_dsq_v3),
-    CommandHandler("get_setup_instruction_v3", get_setup_instruction_v3),
-    CommandHandler("risk_v3", risk_v3),
+    CommandHandler("get_setup_instruction_v3", get_setup_instruction_v2),
+    CommandHandler("risk_v3", risk_v2),
 
     # V4 commands
     CommandHandler("get_dsq_v4", get_dsq_v4),
-    CommandHandler("get_setup_instruction_v4", get_setup_instruction_v4),
-    CommandHandler("risk_v4", risk_v4),
+    CommandHandler("get_setup_instruction_v4", get_setup_instruction_v2),
+    CommandHandler("risk_v4", risk_v2),
 ]
 
 

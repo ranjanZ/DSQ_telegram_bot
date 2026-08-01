@@ -258,3 +258,6 @@
 [2026-08-02 00:02:34] Ranjan Mondal (@None) (id:912944760) → /risk_v2
 [2026-08-02 00:02:40] Ranjan Mondal (@None) (id:912944760) → /start
 [2026-08-02 00:07:38] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v1
+[2026-08-02 00:28:49] Ranjan Mondal (@None) (id:912944760) → //start
+[2026-08-02 00:29:01] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 00:29:20] Ranjan Mondal (@None) (id:912944760) → hi
