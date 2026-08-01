@@ -1,113 +1,134 @@
-# DSQ Chat Agent
+# Dalal Street Quants AI Agent
 
-A LangGraph-based chat agent powered by Ollama (open-source LLM) that handles natural language queries for DSQ (Dalal Street Quants) bot operations.
+A LangGraph-based AI agent powered by Ollama that handles natural language queries for DSQ bot operations.
 
 ## Features
 
-- **Natural Language Processing**: Understand user queries in plain English
-- **Intent Classification**: Automatically detects what the user wants:
-  - Get/create license for DSQ V1-V4
-  - Setup help and instructions
-  - Risk information
-  - Bot download links
-  - General questions
-- **Entity Extraction**: Extracts MT5 ID, name, broker, account type from queries
-- **Multi-version Support**: Handles all DSQ bot versions (V1, V2, V3, V4)
+- **Natural Language Understanding**: Process user queries in plain English/Hindi
+- **Multi-turn Conversations**: Maintain context across multiple messages
+- **Automatic Follow-up Questions**: Ask for missing information intelligently
+- **Self-Sufficient License Creation**: Automatically create and push license files to GitHub
+- **Agent Mode Toggle**: Enable/disable via `/agent_mode` command
+
+## Quick Start
+
+### 1. Enter Agent Mode
+```
+/agent_mode
+```
+
+### 2. Chat Naturally
+```
+I want to get a license for DSQ V2
+My name is John Doe
+MT5 ID: 12345678
+Broker: IC Markets
+Account type: Demo
+```
+
+### 3. Exit Agent Mode
+```
+exit
+```
+or use any command like `/start`
+
+## Capabilities
+
+The agent handles:
+
+1. **License Creation** - Extracts MT5 ID, Name, Broker, Account Type and creates license automatically
+2. **Setup Help** - Provides installation and setup guidance
+3. **Risk Information** - Explains risk management strategies
+4. **Bot Downloads** - Directs to appropriate download links (V1-V4)
+5. **General Queries** - Answers questions about DSQ bots
+
+## Example Conversation
+
+```
+User: /agent_mode
+
+Bot: 🤖 **Agent Mode Activated!**
+     I'm now your personal Dalal Street Quants assistant...
+
+User: I want to get a license for DSQ V2
+
+Bot: To proceed with your license, could you please provide your full name?
+
+User: John Doe
+
+Bot: To proceed with your license, could you please provide your MetaTrader 5 Account ID?
+
+User: 12345678
+
+Bot: To proceed with your license, could you please provide your broker's name?
+
+User: IC Markets
+
+Bot: To proceed with your license, could you please provide your account type (Live or Demo)?
+
+User: Demo
+
+Bot: ✅ **License Created Successfully!**
+     
+     👤 Name: John Doe
+     🆔 MT5 ID: 12345678
+     🏢 Broker: IC Markets
+     📦 Version: V2
+     
+     🔑 **Your License Key:**
+     `A1B2C3D4E5F6G7H8`
+     
+     The license file has been pushed to the repository.
+```
+
+## Environment Setup
+
+Set these environment variables:
+
+```bash
+OLLAMA_MODEL=llama3
+GITHUB_API_TOKEN=your_github_token
+GITHUB_OWNER=your_github_username
+GITHUB_REPO=your_repo_name
+GITHUB_BRANCH=main
+```
+
+## How It Works
+
+The agent uses a state machine workflow:
+
+1. **Classify Intent** - Determines what the user wants (license, help, info, etc.)
+2. **Extract Entities** - Pulls structured data from natural language (MT5 ID, name, etc.)
+3. **Check Missing Info** - Identifies what information is still needed
+4. **Follow-up or Execute** - Either asks for more info or creates the license
+5. **Respond** - Sends formatted response back to user
+
+## Self-Sufficient License Creation
+
+When all required information is collected, the agent:
+- Generates a unique license key using SHA256 hash
+- Creates a JSON file with user details
+- Pushes the file to your GitHub repository automatically
+- Returns the license key to the user
+
+File structure: `licenses/DSQ_V{version}/{mt5_id}.json`
+
+## Integration
+
+Already integrated in `bot.py`:
+- `/agent_mode` command activates agent mode
+- All text messages are processed by the agent when in agent mode
+- Commands always work (priority over agent)
+- Agent maintains conversation history per user
 
 ## Requirements
 
-1. **Ollama**: Install and run Ollama locally
-   ```bash
-   # Install Ollama (Linux/Mac)
-   curl -fsSL https://ollama.com/install.sh | sh
-   
-   # Pull a model (e.g., llama3.2)
-   ollama pull llama3.2
-   
-   # Start Ollama server
-   ollama serve
-   ```
-
-2. **Python Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Usage
-
-### Basic Usage
-
-```python
-from chat_agent.agent import DSQChatAgent
-
-# Initialize the agent
-agent = DSQChatAgent()
-
-# Chat with the agent
-response = agent.chat("I want to get a license for dsq v2")
-print(response)
+```bash
+pip install langgraph langchain-ollama requests python-telegram-bot
 ```
 
-### Example Queries
-
-The agent can handle various natural language queries:
-
-- "I need a license for DSQ V2"
-- "How do I set up the bot?"
-- "What are the risks with this trading bot?"
-- "Download V3 bot please"
-- "My MT5 ID is 12345678, I use XM broker, can you help me get a license?"
-- "Hello, what can you help me with?"
-
-## Architecture
-
-The agent uses a LangGraph workflow with the following nodes:
-
-1. **classify_intent**: Determines user intent (get_license, setup_help, risk_info, download_bot, general)
-2. **extract_entities**: Extracts relevant information (MT5 ID, name, broker, account type)
-3. **handle_license**: Provides license creation guidance
-4. **handle_setup**: Returns setup instructions
-5. **handle_risk**: Provides risk information
-6. **handle_download**: Returns download links
-7. **handle_general**: Handles greetings and general questions
-
-## Integration with Telegram Bot
-
-To integrate this agent with your Telegram bot:
-
-```python
-from chat_agent.agent import DSQChatAgent
-from telegram import Update
-from telegram.ext import MessageHandler, filters
-
-agent = DSQChatAgent()
-
-async def handle_natural_language(update: Update, context):
-    user_query = update.message.text
-    response = agent.chat(user_query)
-    await update.message.reply_text(response)
-
-# Add to your bot handlers
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_natural_language))
+Make sure Ollama is running with the required model:
+```bash
+ollama pull llama3
+ollama serve
 ```
-
-## Configuration
-
-Edit `agent.py` to customize:
-
-- **Model**: Change `model="llama3.2"` to any Ollama model
-- **Base URL**: Modify if Ollama runs on different host/port
-- **Temperature**: Adjust response randomness (0.0 - 1.0)
-- **Prompts**: Customize classification and response prompts
-
-## Partner Codes Reference
-
-The agent includes these partner codes in responses:
-- Vantage: `VcM6U1DW`
-- Roboforex: `zrfhm`
-- XM: `4299V`
-- Exness: `c_niibgmkreg`
-
-## License
-
-Same as the main DSQ project.

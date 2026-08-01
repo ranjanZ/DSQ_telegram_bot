@@ -1,577 +1,442 @@
 """
-LangGraph-based Chat Agent powered by Ollama
-This agent handles natural language queries for DSQ bot operations like:
-- Getting license for DSQ V2, V3, V4
-- Answering setup questions
-- Providing risk information
+Dalal Street Quants LangGraph Agent
+Self-sufficient agent that handles natural language queries and creates licenses automatically.
 
 Features:
-- Intent classification
-- Entity extraction
-- Follow-up questions when information is missing
-- Multi-turn conversation support with conversation history
-
-Integration with Telegram:
-- See telegram_integration.py for how to integrate with your Telegram bot
-- The agent automatically handles non-command messages
-- Conversation context is maintained per user ID
+- Intent classification (get_license, setup_help, risk_info, download_bot, general, exit_agent)
+- Entity extraction (mt5_id, name, broker, account_type, bot_version)
+- Multi-turn conversations with automatic follow-up questions
+- Self-sufficient license creation (creates JSON file and pushes to GitHub)
+- Agent mode toggle via /agent_mode command
 """
 
-from typing import TypedDict, Annotated, List, Any, Optional
+import os
+import json
+import hashlib
+import requests
+from typing import TypedDict, Annotated, Sequence, Literal, Optional, Dict, Any
 from langgraph.graph import StateGraph, END
 from langchain_ollama import ChatOllama
-import operator
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from datetime import datetime
 
-# Initialize Ollama model
-llm = ChatOllama(
-    model="llama3.2",  # or any other open-source model available in Ollama
-    base_url="http://localhost:11434",
-    temperature=0.7
+# Configuration
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+GITHUB_TOKEN = os.getenv("GITHUB_API_TOKEN")
+GITHUB_OWNER = os.getenv("GITHUB_OWNER", "your-github-username")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "your-repo-name")
+BRANCH_NAME = os.getenv("GITHUB_BRANCH", "main")
+
+# Initialize LLM
+llm = ChatOllama(model=OLLAMA_MODEL, temperature=0)
+
+
+class AgentState(TypedDict):
+    """State for the LangGraph agent."""
+    messages: Annotated[Sequence[BaseMessage], "add_messages"]
+    intent: str
+    entities: Dict[str, Any]
+    missing_info: list[str]
+    response: str
+    action_taken: bool
+    should_exit: bool
+
+
+def classify_intent(state: AgentState) -> AgentState:
+    """Classify user intent based on conversation history."""
+    system_prompt = """
+You are the Dalal Street Quants (DSQ) Assistant.
+Classify the user's intent into one of these categories:
+- get_license: User wants to create/get a license key.
+- setup_help: User needs help setting up the bot.
+- risk_info: User asks about risk management.
+- download_bot: User wants to download the bot file.
+- general: General greeting or unrelated query.
+- exit_agent: User wants to exit agent mode (keywords: exit, quit, menu, commands, /start).
+
+Return ONLY the category name.
+"""
+    
+    messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
+    response = llm.invoke(messages)
+    intent = response.content.strip().lower()
+    
+    # Map variations to standard intents
+    intent_map = {
+        "get_license": ["get_license", "license", "create license", "generate key", "get key"],
+        "setup_help": ["setup_help", "setup", "install", "how to"],
+        "risk_info": ["risk_info", "risk", "drawdown", "loss"],
+        "download_bot": ["download_bot", "download", "get bot", "file"],
+        "exit_agent": ["exit_agent", "exit", "quit", "menu", "commands", "/start", "stop agent"],
+    }
+    
+    final_intent = "general"
+    for standard, variations in intent_map.items():
+        if any(var in intent for var in variations):
+            final_intent = standard
+            break
+            
+    return {**state, "intent": final_intent}
+
+
+def extract_entities(state: AgentState) -> AgentState:
+    """Extract entities like MT5 ID, Name, Broker, etc. from the conversation."""
+    system_prompt = """
+Extract the following entities from the user's message if present:
+- mt5_id: MetaTrader 5 Account ID (numeric)
+- name: User's full name
+- broker: Broker name
+- account_type: Account type (Live or Demo)
+- bot_version: Bot version (v1, v2, v3, v4)
+
+Return a JSON object with the found entities. If an entity is not found, do not include it.
+Example: {"mt5_id": "12345678", "name": "John Doe", "broker": "IC Markets"}
+"""
+    
+    messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
+    response = llm.invoke(messages)
+    
+    try:
+        # Clean response to ensure valid JSON
+        content = response.content.strip()
+        if content.startswith("```json"):
+            content = content[7:]
+        if content.endswith("```"):
+            content = content[:-3]
+            
+        entities = json.loads(content.strip())
+        # Merge with existing entities
+        current_entities = state.get("entities", {})
+        current_entities.update(entities)
+        return {**state, "entities": current_entities}
+    except json.JSONDecodeError:
+        return state
+
+
+def check_missing_info(state: AgentState) -> AgentState:
+    """Determine what information is missing for license creation."""
+    required_fields = ["mt5_id", "name", "broker", "account_type"]
+    current_entities = state.get("entities", {})
+    
+    missing = []
+    for field in required_fields:
+        if field not in current_entities:
+            missing.append(field)
+            
+    return {**state, "missing_info": missing}
+
+
+def generate_followup_question(state: AgentState) -> AgentState:
+    """Generate a natural language follow-up question for missing info."""
+    missing = state.get("missing_info", [])
+    
+    if not missing:
+        return {**state, "response": "I have all the information needed."}
+    
+    field_map = {
+        "mt5_id": "your MetaTrader 5 Account ID",
+        "name": "your full name",
+        "broker": "your broker's name",
+        "account_type": "your account type (Live or Demo)"
+    }
+    
+    next_field = missing[0]
+    question = f"To proceed with your license, could you please provide {field_map.get(next_field, next_field)}?"
+    
+    return {**state, "response": question}
+
+
+def create_license_file(entities: Dict[str, Any], bot_version: str) -> tuple[bool, str]:
+    """
+    Self-sufficient license creation: Creates the JSON file and pushes to GitHub.
+    Mirrors the logic used in the Telegram bot handlers.
+    
+    Returns: (success: bool, license_key: str)
+    """
+    if not GITHUB_TOKEN:
+        return False, ""
+        
+    mt5_id = entities.get("mt5_id")
+    name = entities.get("name")
+    broker = entities.get("broker")
+    account_type = entities.get("account_type", "Demo")
+    
+    if not all([mt5_id, name, broker]):
+        return False, ""
+        
+    # Generate License Key (Simple hash simulation similar to bot logic)
+    unique_string = f"{mt5_id}{name}{broker}{datetime.now().strftime('%Y%m%d')}"
+    license_key = hashlib.sha256(unique_string.encode()).hexdigest()[:16].upper()
+    
+    # Construct file path based on version
+    version_map = {
+        "v1": "DSQ_V1",
+        "v2": "DSQ_V2",
+        "v3": "DSQ_V3",
+        "v4": "DSQ_V4"
+    }
+    folder_name = version_map.get(bot_version.lower(), "DSQ_V2")
+    file_path = f"licenses/{folder_name}/{mt5_id}.json"
+    
+    # Content structure matching bot handlers
+    license_data = {
+        "mt5_id": str(mt5_id),
+        "name": name,
+        "broker": broker,
+        "account_type": account_type,
+        "license_key": license_key,
+        "created_at": datetime.now().isoformat(),
+        "version": bot_version.lower()
+    }
+    
+    # GitHub API Logic
+    api_url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{file_path}"
+    
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    
+    # Check if file exists to get SHA (for update) or create new
+    response = requests.get(api_url, headers=headers)
+    sha = None
+    if response.status_code == 200:
+        sha = response.json().get("sha")
+    
+    payload = {
+        "message": f"feat: Add license for {name} ({mt5_id}) - {bot_version.upper()} via DSQ Agent",
+        "content": json.dumps(license_data, indent=2),
+        "branch": BRANCH_NAME
+    }
+    
+    if sha:
+        payload["sha"] = sha
+        
+    put_response = requests.put(api_url, headers=headers, json=payload)
+    
+    if put_response.status_code in [200, 201]:
+        return True, license_key
+    return False, ""
+
+
+def execute_license_creation(state: AgentState) -> AgentState:
+    """Attempt to create the license if all info is present."""
+    missing = state.get("missing_info", [])
+    entities = state.get("entities", {})
+    
+    if missing:
+        return {**state, "action_taken": False}
+        
+    bot_version = entities.get("bot_version", "v2")
+    success, license_key = create_license_file(entities, bot_version)
+    
+    if success:
+        response = (
+            f"✅ **License Created Successfully!**\n\n"
+            f"👤 Name: {entities['name']}\n"
+            f"🆔 MT5 ID: {entities['mt5_id']}\n"
+            f"🏢 Broker: {entities['broker']}\n"
+            f"📦 Version: {bot_version.upper()}\n\n"
+            f"🔑 **Your License Key:**\n`{license_key}`\n\n"
+            f"The license file has been pushed to the repository. You can now use this key in your MetaTrader terminal."
+        )
+        return {**state, "response": response, "action_taken": True}
+    else:
+        return {
+            **state, 
+            "response": "❌ Failed to create license. Please check your GitHub token permissions or try again later.",
+            "action_taken": False
+        }
+
+
+def generate_response(state: AgentState) -> AgentState:
+    """Generate a response for general queries or help."""
+    intent = state.get("intent", "general")
+    
+    if intent == "setup_help":
+        response = (
+            "To set up the bot:\n"
+            "1. Download the EA file from our repository.\n"
+            "2. Attach it to your MT5 chart.\n"
+            "3. Enter your license key when prompted.\n\n"
+            "Would you like me to help you get a license first?"
+        )
+    elif intent == "risk_info":
+        response = (
+            "Our bots use strict risk management. Typically, risk per trade is set between 0.5% to 1%. "
+            "You can adjust this in the EA inputs under 'RiskPercent'. "
+            "Always start with lower risk and increase gradually."
+        )
+    elif intent == "download_bot":
+        response = (
+            "You can download the latest bot version from our GitHub repository.\n"
+            "Which version are you looking for?\n"
+            "- V1 (Legacy)\n"
+            "- V2 (Current Stable)\n"
+            "- V3 (New Features)\n"
+            "- V4 (Latest Beta)"
+        )
+    elif intent == "exit_agent":
+        response = "Exiting agent mode. You can now use standard commands like /start, /get_dsq_v2, etc."
+        return {**state, "response": response, "should_exit": True}
+    else:
+        # Fallback generic response using LLM
+        system_prompt = "You are the Dalal Street Quants assistant. Answer the user's query concisely and helpfully."
+        messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
+        resp = llm.invoke(messages)
+        response = resp.content
+        
+    return {**state, "response": response}
+
+
+def route_logic(state: AgentState) -> Literal["ask_followup", "create_license", "send_response", "end"]:
+    """Decide the next step based on state."""
+    if state.get("should_exit"):
+        return "end"
+        
+    if state.get("intent") == "get_license":
+        if not state.get("missing_info"):
+            return "create_license"
+        else:
+            return "ask_followup"
+            
+    return "send_response"
+
+
+# Build the Graph
+workflow = StateGraph(AgentState)
+
+workflow.add_node("classify_intent", classify_intent)
+workflow.add_node("extract_entities", extract_entities)
+workflow.add_node("check_missing_info", check_missing_info)
+workflow.add_node("generate_followup", generate_followup_question)
+workflow.add_node("execute_creation", execute_license_creation)
+workflow.add_node("generate_response", generate_response)
+
+workflow.set_entry_point("classify_intent")
+
+workflow.add_conditional_edges(
+    "check_missing_info",
+    route_logic,
+    {
+        "ask_followup": "generate_followup",
+        "create_license": "execute_creation",
+        "send_response": "generate_response",
+        "end": END
+    }
 )
 
-# ==================== STATE DEFINITION ====================
-class AgentState(TypedDict):
-    messages: Annotated[List[str], operator.add]  # Conversation history
-    user_query: str  # Current user query
-    intent: str  # Classified intent
-    bot_version: str  # Detected bot version
-    mt5_id: str  # Extracted MT5 ID
-    name: str  # Extracted name
-    broker: str  # Extracted broker
-    account_type: str  # Extracted account type
-    response: str  # Final response
-    needs_followup: bool  # Flag indicating if follow-up is needed
-    missing_fields: List[str]  # List of missing required fields
-    conversation_context: dict  # Stores context across turns
+workflow.add_edge("classify_intent", "extract_entities")
+workflow.add_edge("extract_entities", "check_missing_info")
+workflow.add_edge("generate_followup", END)
+workflow.add_edge("execute_creation", END)
+workflow.add_edge("generate_response", END)
+
+agent_app = workflow.compile()
 
 
-# ==================== INTENT CLASSIFICATION NODE ====================
-def classify_intent(state: AgentState) -> AgentState:
-    """Classify user intent from natural language query with conversation context."""
-    query = state["user_query"]
-    context = state.get("conversation_context", {})
-    messages_history = state.get("messages", [])
-    
-    # Build context-aware prompt
-    context_str = ""
-    if context:
-        context_str = f"\nPrevious conversation context:\n- Bot version mentioned: {context.get('bot_version', 'none')}\n- MT5 ID: {context.get('mt5_id', 'none')}\n- Name: {context.get('name', 'none')}\n- Broker: {context.get('broker', 'none')}\n- Account type: {context.get('account_type', 'none')}"
-    
-    prompt = f"""
-    Classify the following user query into one of these intents:
-    - get_license: User wants to get/create a license
-    - setup_help: User needs help with setup
-    - risk_info: User is asking about risk information
-    - download_bot: User wants to download a bot
-    - followup_answer: User is providing missing information in response to a follow-up question
-    - general: General question or greeting
-    
-    Also identify which bot version they're asking about (v1, v2, v3, v4, or unknown).
-    
-    Current Query: {query}{context_str}
-    
-    Consider the conversation history and context when classifying.
-    
-    Respond in this format:
-    INTENT: <intent>
-    VERSION: <v1|v2|v3|v4|unknown>
-    """
-    
-    response = llm.invoke(prompt)
-    content = response.content.strip()
-    
-    intent = "general"
-    version = "unknown"
-    
-    for line in content.split("\n"):
-        if line.startswith("INTENT:"):
-            intent = line.replace("INTENT:", "").strip()
-        elif line.startswith("VERSION:"):
-            version = line.replace("VERSION:", "").strip()
-    
-    # If no version detected but we have it in context, use context version
-    if version == "unknown" and context.get("bot_version"):
-        version = context["bot_version"]
-    
-    return {
-        **state,
-        "intent": intent,
-        "bot_version": version,
-        "messages": messages_history + [f"[System] Classified intent: {intent}, version: {version}"]
-    }
-
-
-# ==================== ENTITY EXTRACTION NODE ====================
-def extract_entities(state: AgentState) -> AgentState:
-    """Extract entities like MT5 ID, name, broker, account type from user query with context merging."""
-    query = state["user_query"]
-    context = state.get("conversation_context", {})
-    messages_history = state.get("messages", [])
-    
-    # Get previously extracted entities from context
-    prev_mt5_id = context.get("mt5_id", "")
-    prev_name = context.get("name", "")
-    prev_broker = context.get("broker", "")
-    prev_account_type = context.get("account_type", "")
-    
-    prompt = f"""
-    Extract the following information from the user query if available:
-    - MT5 ID (numeric ID like 12345678)
-    - Full Name
-    - Broker name (XM, Vantage, Roboforex, Exness, etc.)
-    - Account Type (Demo or Real)
-    
-    Current Query: {query}
-    
-    Previously extracted information (merge new info with this):
-    - MT5 ID: {prev_mt5_id or 'None'}
-    - Name: {prev_name or 'None'}
-    - Broker: {prev_broker or 'None'}
-    - Account Type: {prev_account_type or 'None'}
-    
-    Respond in this format (use 'None' if not found or not updated):
-    MT5_ID: <value or None>
-    NAME: <value or None>
-    BROKER: <value or None>
-    ACCOUNT_TYPE: <value or None>
-    """
-    
-    response = llm.invoke(prompt)
-    content = response.content.strip()
-    
-    mt5_id = ""
-    name = ""
-    broker = ""
-    account_type = ""
-    
-    for line in content.split("\n"):
-        if line.startswith("MT5_ID:") and "None" not in line:
-            mt5_id = line.replace("MT5_ID:", "").strip()
-        elif line.startswith("NAME:") and "None" not in line:
-            name = line.replace("NAME:", "").strip()
-        elif line.startswith("BROKER:") and "None" not in line:
-            broker = line.replace("BROKER:", "").strip()
-        elif line.startswith("ACCOUNT_TYPE:") and "None" not in line:
-            account_type = line.replace("ACCOUNT_TYPE:", "").strip()
-    
-    # Merge with previous context - keep old values if new ones are empty
-    mt5_id = mt5_id or prev_mt5_id
-    name = name or prev_name
-    broker = broker or prev_broker
-    account_type = account_type or prev_account_type
-    
-    return {
-        **state,
-        "mt5_id": mt5_id,
-        "name": name,
-        "broker": broker,
-        "account_type": account_type,
-        "messages": messages_history + [f"[System] Extracted: MT5={mt5_id}, Name={name}, Broker={broker}, Type={account_type}"]
-    }
-
-
-# ==================== RESPONSE GENERATION NODES ====================
-def handle_license_request(state: AgentState) -> AgentState:
-    """Handle license creation requests with follow-up questions."""
-    version = state["bot_version"]
-    mt5_id = state["mt5_id"]
-    name = state["name"]
-    broker = state["broker"]
-    account_type = state["account_type"]
-    messages_history = state.get("messages", [])
-    
-    # Check if we have all required information
-    missing_info = []
-    if not mt5_id:
-        missing_info.append("MT5 ID")
-    if not name:
-        missing_info.append("Name")
-    if not broker:
-        missing_info.append("Broker")
-    if not account_type:
-        missing_info.append("Account Type (Demo/Real)")
-    
-    if missing_info:
-        # Need to ask follow-up questions
-        response = f"""
-To create a license for DSQ {version.upper()}, I need the following information:
-- {chr(10).join('- ' + item for item in missing_info)}
-
-Please provide these details. You can give me all at once or one at a time.
-
-Partner codes to add before creating license:
-• Vantage: VcM6U1DW
-• Roboforex: zrfhm
-• XM: 4299V
-• Exness: c_niibgmkreg
-        """
-        needs_followup = True
-    else:
-        # Have all information - proceed with license creation
-        response = f"""
-Great! I have all the information needed for your DSQ {version.upper()} license:
-- MT5 ID: {mt5_id}
-- Name: {name}
-- Broker: {broker}
-- Account Type: {account_type}
-
-To complete the license creation, please use:
-/get_licence_{version.lower().replace('v', '')}
-
-This will start an interactive process in the Telegram bot.
-
-⚙️ After getting the license, remember to configure MetaTrader:
-- Tools → Options → Expert Advisors
-- Enable "Allow Algorithmic Trading"
-- Add https://raw.githubusercontent.com to Web Request URL list
-        """
-        needs_followup = False
-    
-    # Update conversation context
-    conversation_context = {
-        "bot_version": version,
-        "mt5_id": mt5_id,
-        "name": name,
-        "broker": broker,
-        "account_type": account_type,
-        "current_task": "license_creation"
-    }
-    
-    return {
-        **state,
-        "response": response,
-        "needs_followup": needs_followup,
-        "missing_fields": missing_info,
-        "conversation_context": conversation_context,
-        "messages": messages_history + [f"[System] License request handled, followup needed: {needs_followup}"]
-    }
-
-
-def handle_setup_help(state: AgentState) -> AgentState:
-    """Handle setup help requests."""
-    version = state["bot_version"]
-    version_num = version.lower().replace('v', '') if version != 'unknown' else '1'
-    messages_history = state.get("messages", [])
-    
-    response = f"""
-🛠️ DSQ V{version_num} Setup Guide:
-
-1. Download & Login to MT5
-   - Get MT5 from metatrader5.com
-   - Login with your broker credentials
-
-2. Configure MetaTrader
-   - Tools → Options → Expert Advisors
-   - ✅ Enable "Allow Algorithmic Trading"
-   - ✅ Allow Web Request → Add: https://raw.githubusercontent.com
-
-3. Download the Bot
-   - Use /get_dsq_v{version_num} in Telegram
-   - Double-click the downloaded .ex5 file
-
-4. Activate License
-   - Use /get_licence_v{version_num} in Telegram
-   - Follow the interactive form (or tell me your details and I'll guide you)
-
-📹 Video Tutorial: https://www.youtube.com/watch?v=AikfpXh4W4U
-    """
-    
-    return {
-        **state,
-        "response": response,
-        "needs_followup": False,
-        "messages": messages_history + [f"[System] Setup help provided for V{version_num}"]
-    }
-
-
-def handle_risk_info(state: AgentState) -> AgentState:
-    """Handle risk information requests."""
-    version = state["bot_version"]
-    version_num = version.lower().replace('v', '') if version != 'unknown' else '1'
-    messages_history = state.get("messages", [])
-    
-    response = f"""
-⚠️ DSQ V{version_num} Risk Information:
-
-For traders with ~10,000 INR (≈100 USD):
-→ Use a CENT Account (not USD)
-→ 100 USD becomes 10,000 USC in cent account
-→ Minimum deposit: $100
-
-Compatible Cent Accounts:
-- Vantage: cent STP (1:2000)
-- XM: Micro account (1:1000)
-- Roboforex: ProCent (1:2000)
-- Exness: USC account
-
-⚠️ Important:
-- Test on Demo first
-- Run only in sideways market
-- Emergency stop: Press Ctrl+E in MetaTrader
-- This bot is for Gold (XAUUSD) only
-- Use default settings
-    """
-    
-    return {
-        **state,
-        "response": response,
-        "needs_followup": False,
-        "messages": messages_history + [f"[System] Risk info provided for V{version_num}"]
-    }
-
-
-def handle_download_request(state: AgentState) -> AgentState:
-    """Handle bot download requests."""
-    version = state["bot_version"]
-    version_num = version.lower().replace('v', '') if version != 'unknown' else '1'
-    messages_history = state.get("messages", [])
-    
-    response = f"""
-📦 Download DSQ V{version_num}:
-
-Direct download link:
-https://github.com/ranjanZ/DSQ_Page/raw/refs/heads/main/data/bots/dsq_v{version_num}.ex5
-
-Or use the Telegram command:
-/get_dsq_v{version_num}
-
-Note: You'll need a valid license to use the bot.
-Use /get_licence_v{version_num} to create your free license.
-    """
-    
-    return {
-        **state,
-        "response": response,
-        "needs_followup": False,
-        "messages": messages_history + [f"[System] Download link provided for V{version_num}"]
-    }
-
-
-def handle_general(state: AgentState) -> AgentState:
-    """Handle general queries and greetings."""
-    query = state["user_query"]
-    messages_history = state.get("messages", [])
-    
-    prompt = f"""
-    Respond to this user query in a helpful and friendly manner.
-    The user is asking about DSQ (Dalal Street Quants) trading bots.
-    
-    Available commands:
-    - /get_licence_v1, /get_licence_v2, /get_licence_v3, /get_licence_v4 (create license)
-    - /get_dsq_v1, /get_dsq_v2, /get_dsq_v3, /get_dsq_v4 (download bot)
-    - /get_setup_instruction_v1, etc. (setup guide)
-    - /risk_v1, /risk_v2, /risk_v3, /risk_v4 (risk info)
-    
-    Partner codes:
-    - Vantage: VcM6U1DW
-    - Roboforex: zrfhm
-    - XM: 4299V
-    - Exness: c_niibgmkreg
-    
-    Query: {query}
-    
-    Provide a helpful response. Keep it concise.
-    """
-    
-    response = llm.invoke(prompt)
-    
-    return {
-        **state,
-        "response": response.content,
-        "needs_followup": False,
-        "messages": messages_history + [f"[System] General response provided"]
-    }
-
-
-# ==================== ROUTING FUNCTION ====================
-def route_by_intent(state: AgentState) -> str:
-    """Route to appropriate handler based on intent."""
-    intent = state["intent"]
-    
-    if intent == "get_license":
-        return "handle_license"
-    elif intent == "setup_help":
-        return "handle_setup"
-    elif intent == "risk_info":
-        return "handle_risk"
-    elif intent == "download_bot":
-        return "handle_download"
-    else:
-        return "handle_general"
-
-
-# ==================== FOLLOW-UP CHECK FUNCTION ====================
-def check_followup_needed(state: AgentState) -> str:
-    """Check if follow-up is needed or conversation is complete."""
-    if state.get("needs_followup", False):
-        return "wait_for_followup"
-    else:
-        return "end_conversation"
-
-
-# ==================== BUILD THE GRAPH ====================
-def create_agent_graph():
-    """Create and compile the LangGraph agent with follow-up support."""
-    
-    workflow = StateGraph(AgentState)
-    
-    # Add nodes
-    workflow.add_node("classify_intent", classify_intent)
-    workflow.add_node("extract_entities", extract_entities)
-    workflow.add_node("handle_license", handle_license_request)
-    workflow.add_node("handle_setup", handle_setup_help)
-    workflow.add_node("handle_risk", handle_risk_info)
-    workflow.add_node("handle_download", handle_download_request)
-    workflow.add_node("handle_general", handle_general)
-    
-    # Set entry point
-    workflow.set_entry_point("classify_intent")
-    
-    # Add edges
-    workflow.add_edge("classify_intent", "extract_entities")
-    
-    # Add conditional routing after entity extraction
-    workflow.add_conditional_edges(
-        "extract_entities",
-        route_by_intent,
-        {
-            "handle_license": "handle_license",
-            "handle_setup": "handle_setup",
-            "handle_risk": "handle_risk",
-            "handle_download": "handle_download",
-            "handle_general": "handle_general"
-        }
-    )
-    
-    # Add conditional edge for follow-up handling (only for license requests)
-    workflow.add_conditional_edges(
-        "handle_license",
-        check_followup_needed,
-        {
-            "wait_for_followup": END,  # Will wait for user's next message
-            "end_conversation": END
-        }
-    )
-    
-    # All other handlers lead to END
-    workflow.add_edge("handle_setup", END)
-    workflow.add_edge("handle_risk", END)
-    workflow.add_edge("handle_download", END)
-    workflow.add_edge("handle_general", END)
-    
-    return workflow.compile()
-
-
-# ==================== MAIN AGENT INTERFACE ====================
-class DSQChatAgent:
-    """Main interface for the DSQ Chat Agent with multi-turn conversation support."""
+class ConversationMemory:
+    """Simple in-memory conversation store for multi-turn support."""
     
     def __init__(self):
-        self.graph = create_agent_graph()
-        # Store conversation states per user
-        self.conversation_states = {}
+        self.conversations: Dict[str, List[BaseMessage]] = {}
+        self.modes: Dict[str, str] = {}  # Track agent mode per user
     
-    def chat(self, user_query: str, user_id: str = "default") -> str:
-        """
-        Process a natural language query and return a response.
-        Supports multi-turn conversations with context persistence.
-        
-        Args:
-            user_query: The user's natural language question/request
-            user_id: Unique identifier for the user (for conversation tracking)
-            
-        Returns:
-            str: The agent's response
-        """
-        # Get or initialize conversation state for this user
-        if user_id not in self.conversation_states:
-            self.conversation_states[user_id] = {
-                "messages": [],
-                "conversation_context": {}
-            }
-        
-        user_state = self.conversation_states[user_id]
-        
-        # Build initial state with conversation history
-        initial_state = {
-            "messages": user_state["messages"],
-            "user_query": user_query,
-            "intent": "",
-            "bot_version": "unknown",
-            "mt5_id": "",
-            "name": "",
-            "broker": "",
-            "account_type": "",
-            "response": "",
-            "needs_followup": False,
-            "missing_fields": [],
-            "conversation_context": user_state.get("conversation_context", {})
-        }
-        
-        # Run the graph
-        result = self.graph.invoke(initial_state)
-        
-        # Update stored conversation state
-        self.conversation_states[user_id] = {
-            "messages": result["messages"],
-            "conversation_context": result.get("conversation_context", {})
-        }
-        
-        return result["response"]
+    def get_history(self, user_id: str) -> List[BaseMessage]:
+        return self.conversations.get(user_id, [])
     
-    def reset_conversation(self, user_id: str = "default"):
-        """Reset conversation history for a specific user."""
-        if user_id in self.conversation_states:
-            del self.conversation_states[user_id]
+    def add_message(self, user_id: str, message: BaseMessage):
+        if user_id not in self.conversations:
+            self.conversations[user_id] = []
+        self.conversations[user_id].append(message)
+        
+        # Keep only last 10 messages to avoid context overflow
+        if len(self.conversations[user_id]) > 10:
+            self.conversations[user_id] = self.conversations[user_id][-10:]
     
-    def get_conversation_context(self, user_id: str = "default") -> dict:
-        """Get the current conversation context for a user."""
-        return self.conversation_states.get(user_id, {}).get("conversation_context", {})
+    def clear_history(self, user_id: str):
+        if user_id in self.conversations:
+            del self.conversations[user_id]
+    
+    def is_in_agent_mode(self, user_id: str) -> bool:
+        return self.modes.get(user_id, "command") == "agent"
+    
+    def set_agent_mode(self, user_id: str, active: bool):
+        self.modes[user_id] = "agent" if active else "command"
 
 
-# Example usage and testing
-if __name__ == "__main__":
-    print("=" * 60)
-    print("DSQ Chat Agent - Multi-Turn Conversation Demo")
-    print("=" * 60)
-    print("\nThis demonstrates how the agent handles follow-up questions.")
-    print("The agent will ask for missing information when needed.\n")
+# Global memory instance
+memory = ConversationMemory()
+
+
+def run_agent(user_message: str, user_id: str) -> str:
+    """
+    Run the agent with a user message.
     
-    agent = DSQChatAgent()
+    Args:
+        user_message: The user's input message
+        user_id: Unique identifier for the user (for conversation memory)
     
-    # Test queries demonstrating multi-turn conversation
-    print("=" * 60)
-    print("Test 1: Multi-Turn Conversation with Follow-up Questions")
-    print("=" * 60)
+    Returns:
+        The agent's response text
+    """
+    # Get conversation history
+    history = memory.get_history(user_id)
     
-    # First turn: User wants license but doesn't provide all info
-    query1 = "I want to get a license for dsq v2"
-    print(f"\nUser: {query1}")
-    response1 = agent.chat(query1, user_id="test_user")
-    print(f"Agent: {response1}")
+    # Create initial state
+    initial_state = {
+        "messages": history + [HumanMessage(content=user_message)],
+        "intent": "",
+        "entities": {},
+        "missing_info": [],
+        "response": "",
+        "action_taken": False,
+        "should_exit": False
+    }
     
-    # Second turn: User provides partial information
-    query2 = "My MT5 ID is 12345678 and name is John Doe"
-    print(f"\nUser: {query2}")
-    response2 = agent.chat(query2, user_id="test_user")
-    print(f"Agent: {response2}")
+    # Run the agent
+    result = agent_app.invoke(initial_state)
     
-    # Third turn: User provides remaining information
-    query3 = "Broker is XM and I want a Real account"
-    print(f"\nUser: {query3}")
-    response3 = agent.chat(query3, user_id="test_user")
-    print(f"Agent: {response3}")
+    # Get response
+    response = result.get("response", "Something went wrong.")
     
-    print("\n" + "=" * 60)
-    print("Test 2: Single-Turn with All Information")
-    print("=" * 60)
+    # Update conversation history
+    memory.add_message(user_id, HumanMessage(content=user_message))
+    memory.add_message(user_id, AIMessage(content=response))
     
-    # Test with all information at once
-    query_complete = "Get me a license for dsq v3. MT5 ID: 87654321, Name: Jane Smith, Broker: Vantage, Account: Demo"
-    print(f"\nUser: {query_complete}")
-    response_complete = agent.chat(query_complete, user_id="test_user_2")
-    print(f"Agent: {response_complete}")
+    # Check if we should exit agent mode
+    if result.get("should_exit"):
+        memory.set_agent_mode(user_id, False)
+        memory.clear_history(user_id)
     
-    print("\n" + "=" * 60)
-    print("Note: To use with Telegram, see telegram_integration.py")
-    print("=" * 60)
+    return response
+
+
+def enter_agent_mode(user_id: str) -> str:
+    """Enter agent mode for a user."""
+    memory.set_agent_mode(user_id, True)
+    memory.clear_history(user_id)  # Clear old history when entering agent mode
+    
+    return (
+        "🤖 **Agent Mode Activated!**\n\n"
+        "I'm now your personal Dalal Street Quants assistant. You can ask me anything in natural language!\n\n"
+        "Examples:\n"
+        "• 'I want to get a license for DSQ V2'\n"
+        "• 'How do I set up the bot?'\n"
+        "• 'What's the risk management strategy?'\n"
+        "• 'Download V3 bot'\n\n"
+        "Type 'exit' or 'menu' to return to command mode."
+    )
+
+
+def exit_agent_mode(user_id: str) -> str:
+    """Exit agent mode for a user."""
+    memory.set_agent_mode(user_id, False)
+    memory.clear_history(user_id)
+    
+    return "Exited agent mode. Use /start to see available commands."
+
+
+def is_in_agent_mode(user_id: str) -> bool:
+    """Check if a user is in agent mode."""
+    return memory.is_in_agent_mode(user_id)
