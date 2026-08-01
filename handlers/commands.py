@@ -10,6 +10,11 @@ DOWNLOAD_URL = "https://github.com/ranjanZ/ranjanZ.github.io/raw/refs/heads/mast
 def get_lang(context: ContextTypes.DEFAULT_TYPE) -> str:
     return context.user_data.get("lang", "en")
 
+# Forward reference for agent_mode command (defined in bot.py)
+async def agent_mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Placeholder - actual implementation is in bot.py"""
+    pass
+
 # ==================== REGULAR COMMANDS ====================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = get_lang(context)
@@ -303,6 +308,7 @@ handlers = [
 
     CommandHandler("start", start),
     CommandHandler("change_lang", change_lang),
+    CommandHandler("agent_mode", agent_mode_command),
 
     # V1 commands
     CommandHandler("get_dsq_v1", get_dsq_v1),
