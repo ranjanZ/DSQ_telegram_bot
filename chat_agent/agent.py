@@ -44,7 +44,10 @@ class AgentState(TypedDict):
 
 
 def classify_intent(state: AgentState) -> AgentState:
-    """Classify user intent based on conversation history."""
+    """Classify user's intent based on conversation history."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     system_prompt = """
 You are the Dalal Street Quants (DSQ) Assistant.
 Classify the user's intent into one of these categories:
@@ -62,9 +65,11 @@ Return ONLY the category name.
     response = llm.invoke(messages)
     intent = response.content.strip().lower()
     
+    logger.info(f"[CLASSIFY_INTENT] Raw LLM intent: '{intent}'")
+    
     # Map variations to standard intents
     intent_map = {
-        "get_license": ["get_license", "license", "create license", "generate key", "get key"],
+        "get_license": ["get_license", "license", "create license", "generate key", "get key", "want license", "need license"],
         "setup_help": ["setup_help", "setup", "install", "how to"],
         "risk_info": ["risk_info", "risk", "drawdown", "loss"],
         "download_bot": ["download_bot", "download", "get bot", "file"],
@@ -76,12 +81,26 @@ Return ONLY the category name.
         if any(var in intent for var in variations):
             final_intent = standard
             break
-            
+    
+    # Special case: if user says "yes" and previous context was about license, treat as get_license
+    if intent in ["yes", "yeah", "sure", "ok", "okay"]:
+        # Check if there's license-related context in recent messages
+        recent_messages = list(state["messages"])[-3:]
+        for msg in recent_messages:
+            if isinstance(msg, AIMessage) and ("license" in msg.content.lower() or "proceed" in msg.content.lower()):
+                final_intent = "get_license"
+                logger.info(f"[CLASSIFY_INTENT] Detected affirmative response in license context, setting intent to get_license")
+                break
+    
+    logger.info(f"[CLASSIFY_INTENT] Final intent: '{final_intent}'")
     return {**state, "intent": final_intent}
 
 
 def extract_entities(state: AgentState) -> AgentState:
     """Extract entities like MT5 ID, Name, Broker, etc. from the conversation."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     system_prompt = """
 Extract the following entities from the user's message if present:
 - mt5_id: MetaTrader 5 Account ID (numeric)
@@ -97,20 +116,24 @@ Example: {"mt5_id": "12345678", "name": "John Doe", "broker": "IC Markets"}
     messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
     response = llm.invoke(messages)
     
+    logger.info(f"[EXTRACT_ENTITIES] LLM response: '{response.content.strip()}'")
+    
     try:
         # Clean response to ensure valid JSON
         content = response.content.strip()
         if content.startswith("```json"):
             content = content[7:]
         if content.endswith("```"):
-            content = content[:-3]
+            content = content[:-3:]
             
         entities = json.loads(content.strip())
         # Merge with existing entities
         current_entities = state.get("entities", {})
         current_entities.update(entities)
+        logger.info(f"[EXTRACT_ENTITIES] Extracted entities: {entities}, Merged: {current_entities}")
         return {**state, "entities": current_entities}
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.warning(f"[EXTRACT_ENTITIES] Failed to parse JSON: {e}, raw content: '{response.content.strip()}'")
         return state
 
 
@@ -129,7 +152,11 @@ def check_missing_info(state: AgentState) -> AgentState:
 
 def generate_followup_question(state: AgentState) -> AgentState:
     """Generate a natural language follow-up question for missing info."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     missing = state.get("missing_info", [])
+    logger.info(f"[FOLLOWUP] Missing fields: {missing}")
     
     if not missing:
         return {**state, "response": "I have all the information needed."}
@@ -144,6 +171,7 @@ def generate_followup_question(state: AgentState) -> AgentState:
     next_field = missing[0]
     question = f"To proceed with your license, could you please provide {field_map.get(next_field, next_field)}?"
     
+    logger.info(f"[FOLLOWUP] Asking: '{question}'")
     return {**state, "response": question}
 
 
@@ -222,13 +250,20 @@ def create_license_file(entities: Dict[str, Any], bot_version: str) -> tuple[boo
 
 def execute_license_creation(state: AgentState) -> AgentState:
     """Attempt to create the license if all info is present."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     missing = state.get("missing_info", [])
     entities = state.get("entities", {})
     
+    logger.info(f"[EXECUTE_LICENSE] Missing: {missing}, Entities: {entities}")
+    
     if missing:
+        logger.warning(f"[EXECUTE_LICENSE] Cannot create license, missing fields: {missing}")
         return {**state, "action_taken": False}
         
     bot_version = entities.get("bot_version", "v2")
+    logger.info(f"[EXECUTE_LICENSE] Creating license for version: {bot_version}")
     success, license_key = create_license_file(entities, bot_version)
     
     if success:
@@ -241,8 +276,10 @@ def execute_license_creation(state: AgentState) -> AgentState:
             f"🔑 **Your License Key:**\n`{license_key}`\n\n"
             f"The license file has been pushed to the repository. You can now use this key in your MetaTrader terminal."
         )
+        logger.info(f"[EXECUTE_LICENSE] License created successfully: {license_key[:8]}...")
         return {**state, "response": response, "action_taken": True}
     else:
+        logger.error(f"[EXECUTE_LICENSE] Failed to create license")
         return {
             **state, 
             "response": "❌ Failed to create license. Please check your GitHub token permissions or try again later.",
@@ -252,7 +289,11 @@ def execute_license_creation(state: AgentState) -> AgentState:
 
 def generate_response(state: AgentState) -> AgentState:
     """Generate a response for general queries or help."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     intent = state.get("intent", "general")
+    logger.info(f"[GENERATE_RESPONSE] Intent: '{intent}'")
     
     if intent == "setup_help":
         response = (
@@ -280,6 +321,18 @@ def generate_response(state: AgentState) -> AgentState:
     elif intent == "exit_agent":
         response = "Exiting agent mode. You can now use standard commands like /start, /get_dsq_v2, etc."
         return {**state, "response": response, "should_exit": True}
+    elif intent == "get_license":
+        # This should not happen normally as get_license goes to execute_creation
+        # But if we reach here, ask for more info
+        response = (
+            "I'd be happy to help you get a license!\n\n"
+            "Please provide the following details:\n"
+            "1. Your MetaTrader 5 Account ID (MT5 ID)\n"
+            "2. Your full name\n"
+            "3. Your broker's name\n"
+            "4. Account type (Live or Demo)\n"
+            "5. Which bot version? (V1, V2, V3, or V4)"
+        )
     else:
         # Fallback generic response using LLM
         system_prompt = "You are the Dalal Street Quants assistant. Answer the user's query concisely and helpfully."
@@ -287,20 +340,33 @@ def generate_response(state: AgentState) -> AgentState:
         resp = llm.invoke(messages)
         response = resp.content
         
+    logger.info(f"[GENERATE_RESPONSE] Response generated: '{response[:80]}...'")
     return {**state, "response": response}
 
 
 def route_logic(state: AgentState) -> Literal["ask_followup", "create_license", "send_response", "end"]:
     """Decide the next step based on state."""
-    if state.get("should_exit"):
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    intent = state.get("intent", "")
+    missing = state.get("missing_info", [])
+    should_exit = state.get("should_exit", False)
+    
+    logger.info(f"[ROUTE_LOGIC] Intent: '{intent}', Missing: {missing}, ShouldExit: {should_exit}")
+    
+    if should_exit:
         return "end"
         
-    if state.get("intent") == "get_license":
-        if not state.get("missing_info"):
+    if intent == "get_license":
+        if not missing:
+            logger.info(f"[ROUTE_LOGIC] Routing to create_license")
             return "create_license"
         else:
+            logger.info(f"[ROUTE_LOGIC] Routing to ask_followup (missing: {missing})")
             return "ask_followup"
             
+    logger.info(f"[ROUTE_LOGIC] Routing to send_response")
     return "send_response"
 
 
