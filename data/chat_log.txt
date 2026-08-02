@@ -311,7 +311,34 @@
 [2026-08-02 13:50:26] Ranjan Mondal (@None) (id:912944760) → /start
 [2026-08-02 13:50:39] Ranjan Mondal (@None) (id:912944760) → /agent_mode
 [2026-08-02 13:50:44] Ranjan Mondal (@None) (id:912944760) → hi
+<<<<<<< HEAD
 [2026-08-02 09:12:44] Ranjan Mondal (@None) (id:912944760) → /start
 [2026-08-02 09:12:47] Ranjan Mondal (@None) (id:912944760) → /agent_mode
 [2026-08-02 09:12:53] Ranjan Mondal (@None) (id:912944760) → hi
 [2026-08-02 09:13:14] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+=======
+[2026-08-02 14:28:45] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 14:28:50] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 14:28:53] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 14:29:13] Ranjan Mondal (@None) (id:912944760) → how to get license
+[2026-08-02 14:29:44] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction
+[2026-08-02 14:30:24] Ranjan Mondal (@None) (id:912944760) → /get_dsq_v4
+[2026-08-02 14:30:32] Ranjan Mondal (@None) (id:912944760) → /get_licence_v4
+[2026-08-02 14:30:55] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-08-02 14:30:58] Ranjan Mondal (@None) (id:912944760) → 2134124235
+[2026-08-02 14:31:01] Ranjan Mondal (@None) (id:912944760) → fsdfsdfsdfsdf
+[2026-08-02 14:31:05] Ranjan Mondal (@None) (id:912944760) → XM
+[2026-08-02 14:31:08] Ranjan Mondal (@None) (id:912944760) → Real
+[2026-08-02 14:34:37] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 14:34:40] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 14:34:45] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 14:34:53] Ranjan Mondal (@None) (id:912944760) → hello
+[2026-08-02 14:43:48] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 14:48:30] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 14:48:36] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 14:53:38] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 14:53:44] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 14:53:50] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 14:53:57] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 14:54:01] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+>>>>>>> 2eb71b0 (all added)

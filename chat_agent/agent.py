@@ -14,14 +14,15 @@ import os
 import json
 import hashlib
 import requests
-from typing import TypedDict, Annotated, Sequence, Literal, Optional, Dict, Any, List
+from typing import TypedDict, Annotated, Sequence, Literal, Optional, Dict, Any, List 
 from langgraph.graph import StateGraph, END
 from langchain_ollama import ChatOllama
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from datetime import datetime
 
+
 # Configuration
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+OLLAMA_MODEL = "llama3.2"
 GITHUB_TOKEN = os.getenv("GITHUB_API_TOKEN")
 GITHUB_OWNER = os.getenv("GITHUB_OWNER", "your-github-username")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "your-repo-name")
@@ -414,6 +415,8 @@ def run_agent(user_message: str, user_id: str) -> str:
 
 def enter_agent_mode(user_id: str) -> str:
     """Enter agent mode for a user."""
+    print(f"User {user_id} has entered agent mode.")
+
     memory.set_agent_mode(user_id, True)
     memory.clear_history(user_id)  # Clear old history when entering agent mode
     
