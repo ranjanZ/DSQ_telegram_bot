@@ -464,7 +464,7 @@ handlers = [
 
     CommandHandler("start", start),
     CommandHandler("change_lang", change_lang),
-    CommandHandler("agent_mode", agent_mode_command),
+    # NOTE: agent_mode handler is NOT included here - it's defined in bot.py with proper implementation
 
     # V1 commands
     CommandHandler("get_dsq_v1", get_dsq_v1),
