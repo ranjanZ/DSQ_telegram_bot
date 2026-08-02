@@ -340,6 +340,116 @@ async def risk_v2(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = "⚠️ V2 risk information will be published soon."
     await update.message.reply_text(msg)
 
+
+# ==================== SHARED HANDLERS (Single versions) ====================
+async def get_setup_instruction(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Unified setup instruction for all bot versions"""
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = (
+            "🛠️ <b>सेटअप गाइड (सभी संस्करणों के लिए)</b>\n\n"
+            "1. <b>MT5 डाउनलोड करें और लॉगिन करें</b>\n"
+            "आधिकारिक वेबसाइट metatrader5.com से MT5 डाउनलोड करें।\n"
+            "अपने ब्रोकर के User ID, Password और Server से लॉगिन करें।\n\n"
+            "2. <b>MetaTrader सेटिंग्स</b>\n"
+            "Tools → Options → Expert Advisors:\n"
+            "✅ Allow Algorithmic Trading\n"
+            "✅ Allow Web Request for listed URL → जोड़ें: https://raw.githubusercontent.com\n\n"
+            "3. <b>एल्गो बॉट डाउनलोड करें</b>\n"
+            "उपयुक्त /get_dsq_v* कमांड का उपयोग करें, फिर डाउनलोड की गई फाइल पर डबल‑क्लिक करें → यह MetaTrader में जुड़ जाएगी।\n"
+            "Navigator पैनल (दाईं ओर) में बॉट को Expert Advisors के अंतर्गत देखें।\n\n"
+            "4. <b>लाइसेंस एक्टिवेट करें</b>\n"
+            "उपयुक्त /get_licence_v* कमांड का उपयोग करें।\n\n"
+            "📹 <b>निर्देश वीडियो</b>\n"
+            "सेटअप निर्देश वीडियो: https://www.youtube.com/watch?v=AikfpXh4W4U\n"
+            "जोखिम कम करने के लिए कौन सा अकाउंट इस्तेमाल करें: https://www.youtube.com/watch?v=gG-SbraJwiY"
+        )
+    else:
+        msg = (
+            "🛠️ <b>Setup Guide (for all versions)</b>\n\n"
+            "1. <b>Download MT5 &amp; Login</b>\n"
+            "Download MT5 from the official website: metatrader5.com\n"
+            "Login with your broker's User ID, Password, and Server (MetaTrader 5).\n\n"
+            "2. <b>MetaTrader Settings</b>\n"
+            "In MetaTrader, go to Tools → Options → Expert Advisors:\n"
+            "✅ Allow Algorithmic Trading\n"
+            "✅ Allow Web Request for listed URL → Add: https://raw.githubusercontent.com\n\n"
+            "3. <b>Download the Algo Bot</b>\n"
+            "Use appropriate /get_dsq_v* command, then double‑click the downloaded file → it will be added to MetaTrader.\n"
+            "In the Navigator panel (right side), find the bot under Expert Advisors.\n\n"
+            "4. <b>Activate your Bot Licence</b>\n"
+            "Use appropriate /get_licence_v* command\n\n"
+            "📹 <b>Instruction Videos</b>\n"
+            "Set up in instruction video: https://www.youtube.com/watch?v=AikfpXh4W4U\n"
+            "Which account to use to minimize risk: https://www.youtube.com/watch?v=gG-SbraJwiY"
+        )
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
+
+
+async def risk_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Unified risk information for all bot versions"""
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = (
+            "<b>बॉट मानदंड और जोखिम – ध्यान से पढ़ें</b>\n\n"
+            "यदि आपके पास 10,000 INR (≈ 100 USD) है:\n"
+            "→ आपको एक सेंट अकाउंट (USD नहीं) चाहिए।\n"
+            "→ सेंट अकाउंट में 100 USD, 10,000 USC (ट्रेडिंग राशि) बन जाते हैं।\n"
+            "→ न्यूनतम आवश्यकता: 100 USD जमा = 10,000 USC।\n\n"
+            "💰 अपना अकाउंट प्रकार चुनें\n\n"
+            "USD अकाउंट: कम से कम 10,000 USD की आवश्यकता → छोटी पूंजी के लिए नहीं।\n"
+            "सेंट अकाउंट: कम से कम 100 USD की आवश्यकता → यह 10,000 INR के लिए है।\n\n"
+            "⚠️ हमेशा पहले डेमो पर परीक्षण करें – वही ब्रोकर, वही सेंट अकाउंट प्रकार।\n"
+            "बॉट को तभी चलाएं जब बाजार साइडवेज़ हो।\n"
+            "🆘 आपातकालीन स्टॉप: MetaTrader में Ctrl+E एक बार दबाएं। फिर सभी ट्रेड्स बंद करें।\n"
+            "🔥 संगत सेंट अकाउंट [10,000 INR के लिए]\n\n"
+            "<pre>"
+            "ब्रोकर      | ✅ सेंट अकाउंट (काम करता है)   | ❌ USD अकाउंट (बहुत अधिक जोखिम)\n"
+            "----------------------------------------------------------------------\n"
+            "Vantage     | ✓ cent STP (1:2000)          | ✗ Normal STP\n"
+            "XM          | ✓ Micro account (1:1000)     | ✗ Ultra Low / Standard\n"
+            "Roboforex   | ✓ ProCent account (1:2000)   | ✗ Pro account\n"
+            "Exness      | ✓ USC account               | ✗ USD account\n"
+            "</pre>\n\n"
+            "उदाहरण: 10,000 INR → 100 USD जमा → 10,000 USC मिलते हैं।\n\n"
+            "───────\n"
+            "<b>ℹ️ महत्वपूर्ण नोट:</b>\n"
+            "• बॉट <b>केवल गोल्ड (XAUUSD)</b> के लिए है।\n"
+            "• FX या crypto पर न चलाएं।\n"
+            "• <b>डिफ़ॉल्ट सेटिंग्स</b> का उपयोग करें।"
+        )
+    else:
+        msg = (
+            "<b>Bot Criteria &amp; Risk – Read Carefully</b>\n\n"
+            "If you have 10,000 INR (≈ 100 USD):\n"
+            "→ You need a Cent Account.\n"
+            "→ 100 USD becomes 10,000 USC.\n"
+            "→ Minimum deposit: 100 USD.\n\n"
+            "💰 Account type\n"
+            "USD account: Needs $10,000 → too high.\n"
+            "Cent account: Needs $100 → perfect for 10k INR.\n\n"
+            "⚠️ Always test on Demo first.\n"
+            "Run only sideways market.\n"
+            "🆘 Emergency: Ctrl+E in MetaTrader.\n"
+            "🔥 Compatible Cent Accounts:\n"
+            "<pre>"
+            "Broker      | ✅ Cent Account        | ❌ USD Account\n"
+            "---------------------------------------------------\n"
+            "Vantage     | ✓ cent STP (1:2000)   | ✗ Normal STP\n"
+            "XM          | ✓ Micro account (1:1000)| ✗ Ultra Low / Standard\n"
+            "Roboforex   | ✓ ProCent (1:2000)    | ✗ Pro\n"
+            "Exness      | ✓ USC account         | ✗ USD\n"
+            "</pre>\n\n"
+            "Example: 10,000 INR → deposit $100 → get 10,000 USC.\n\n"
+            "───────\n"
+            "<b>ℹ️ Important:</b>\n"
+            "• Bot is <b>only for Gold (XAUUSD)</b>.\n"
+            "• Not for FX or crypto.\n"
+            "• <b>Use default settings</b>."
+        )
+    await update.message.reply_text(msg, parse_mode="HTML")
+
+
 # ==================== HANDLER LIST ====================
 from handlers.handle_licence_v1 import licence_conv_v1       # V1 licence
 from handlers.handle_licence_v2 import licence_conv_v2       # V2 licence
@@ -540,3 +650,112 @@ async def risk_v4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         msg = "⚠️ V4 risk information will be published soon."
     await update.message.reply_text(msg)
+
+
+# ==================== SHARED HANDLERS (Single versions) ====================
+async def get_setup_instruction(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Unified setup instruction for all bot versions"""
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = (
+            "🛠️ <b>सेटअप गाइड (सभी संस्करणों के लिए)</b>\n\n"
+            "1. <b>MT5 डाउनलोड करें और लॉगिन करें</b>\n"
+            "आधिकारिक वेबसाइट metatrader5.com से MT5 डाउनलोड करें।\n"
+            "अपने ब्रोकर के User ID, Password और Server से लॉगिन करें।\n\n"
+            "2. <b>MetaTrader सेटिंग्स</b>\n"
+            "Tools → Options → Expert Advisors:\n"
+            "✅ Allow Algorithmic Trading\n"
+            "✅ Allow Web Request for listed URL → जोड़ें: https://raw.githubusercontent.com\n\n"
+            "3. <b>एल्गो बॉट डाउनलोड करें</b>\n"
+            "उपयुक्त /get_dsq_v* कमांड का उपयोग करें, फिर डाउनलोड की गई फाइल पर डबल‑क्लिक करें → यह MetaTrader में जुड़ जाएगी।\n"
+            "Navigator पैनल (दाईं ओर) में बॉट को Expert Advisors के अंतर्गत देखें।\n\n"
+            "4. <b>लाइसेंस एक्टिवेट करें</b>\n"
+            "उपयुक्त /get_licence_v* कमांड का उपयोग करें।\n\n"
+            "📹 <b>निर्देश वीडियो</b>\n"
+            "सेटअप निर्देश वीडियो: https://www.youtube.com/watch?v=AikfpXh4W4U\n"
+            "जोखिम कम करने के लिए कौन सा अकाउंट इस्तेमाल करें: https://www.youtube.com/watch?v=gG-SbraJwiY"
+        )
+    else:
+        msg = (
+            "🛠️ <b>Setup Guide (for all versions)</b>\n\n"
+            "1. <b>Download MT5 &amp; Login</b>\n"
+            "Download MT5 from the official website: metatrader5.com\n"
+            "Login with your broker's User ID, Password, and Server (MetaTrader 5).\n\n"
+            "2. <b>MetaTrader Settings</b>\n"
+            "In MetaTrader, go to Tools → Options → Expert Advisors:\n"
+            "✅ Allow Algorithmic Trading\n"
+            "✅ Allow Web Request for listed URL → Add: https://raw.githubusercontent.com\n\n"
+            "3. <b>Download the Algo Bot</b>\n"
+            "Use appropriate /get_dsq_v* command, then double‑click the downloaded file → it will be added to MetaTrader.\n"
+            "In the Navigator panel (right side), find the bot under Expert Advisors.\n\n"
+            "4. <b>Activate your Bot Licence</b>\n"
+            "Use appropriate /get_licence_v* command\n\n"
+            "📹 <b>Instruction Videos</b>\n"
+            "Set up in instruction video: https://www.youtube.com/watch?v=AikfpXh4W4U\n"
+            "Which account to use to minimize risk: https://www.youtube.com/watch?v=gG-SbraJwiY"
+        )
+    await update.message.reply_text(msg, parse_mode="HTML", disable_web_page_preview=True)
+
+
+async def risk_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Unified risk information for all bot versions"""
+    lang = get_lang(context)
+    if lang == "hi":
+        msg = (
+            "<b>बॉट मानदंड और जोखिम – ध्यान से पढ़ें</b>\n\n"
+            "यदि आपके पास 10,000 INR (≈ 100 USD) है:\n"
+            "→ आपको एक सेंट अकाउंट (USD नहीं) चाहिए।\n"
+            "→ सेंट अकाउंट में 100 USD, 10,000 USC (ट्रेडिंग राशि) बन जाते हैं।\n"
+            "→ न्यूनतम आवश्यकता: 100 USD जमा = 10,000 USC।\n\n"
+            "💰 अपना अकाउंट प्रकार चुनें\n\n"
+            "USD अकाउंट: कम से कम 10,000 USD की आवश्यकता → छोटी पूंजी के लिए नहीं।\n"
+            "सेंट अकाउंट: कम से कम 100 USD की आवश्यकता → यह 10,000 INR के लिए है।\n\n"
+            "⚠️ हमेशा पहले डेमो पर परीक्षण करें – वही ब्रोकर, वही सेंट अकाउंट प्रकार।\n"
+            "बॉट को तभी चलाएं जब बाजार साइडवेज़ हो।\n"
+            "🆘 आपातकालीन स्टॉप: MetaTrader में Ctrl+E एक बार दबाएं। फिर सभी ट्रेड्स बंद करें।\n"
+            "🔥 संगत सेंट अकाउंट [10,000 INR के लिए]\n\n"
+            "<pre>"
+            "ब्रोकर      | ✅ सेंट अकाउंट (काम करता है)   | ❌ USD अकाउंट (बहुत अधिक जोखिम)\n"
+            "----------------------------------------------------------------------\n"
+            "Vantage     | ✓ cent STP (1:2000)          | ✗ Normal STP\n"
+            "XM          | ✓ Micro account (1:1000)     | ✗ Ultra Low / Standard\n"
+            "Roboforex   | ✓ ProCent account (1:2000)   | ✗ Pro account\n"
+            "Exness      | ✓ USC account               | ✗ USD account\n"
+            "</pre>\n\n"
+            "उदाहरण: 10,000 INR → 100 USD जमा → 10,000 USC मिलते हैं।\n\n"
+            "───────\n"
+            "<b>ℹ️ महत्वपूर्ण नोट:</b>\n"
+            "• बॉट <b>केवल गोल्ड (XAUUSD)</b> के लिए है।\n"
+            "• FX या crypto पर न चलाएं।\n"
+            "• <b>डिफ़ॉल्ट सेटिंग्स</b> का उपयोग करें।"
+        )
+    else:
+        msg = (
+            "<b>Bot Criteria &amp; Risk – Read Carefully</b>\n\n"
+            "If you have 10,000 INR (≈ 100 USD):\n"
+            "→ You need a Cent Account.\n"
+            "→ 100 USD becomes 10,000 USC.\n"
+            "→ Minimum deposit: 100 USD.\n\n"
+            "💰 Account type\n"
+            "USD account: Needs $10,000 → too high.\n"
+            "Cent account: Needs $100 → perfect for 10k INR.\n\n"
+            "⚠️ Always test on Demo first.\n"
+            "Run only sideways market.\n"
+            "🆘 Emergency: Ctrl+E in MetaTrader.\n"
+            "🔥 Compatible Cent Accounts:\n"
+            "<pre>"
+            "Broker      | ✅ Cent Account        | ❌ USD Account\n"
+            "---------------------------------------------------\n"
+            "Vantage     | ✓ cent STP (1:2000)   | ✗ Normal STP\n"
+            "XM          | ✓ Micro account (1:1000)| ✗ Ultra Low / Standard\n"
+            "Roboforex   | ✓ ProCent (1:2000)    | ✗ Pro\n"
+            "Exness      | ✓ USC account         | ✗ USD\n"
+            "</pre>\n\n"
+            "Example: 10,000 INR → deposit $100 → get 10,000 USC.\n\n"
+            "───────\n"
+            "<b>ℹ️ Important:</b>\n"
+            "• Bot is <b>only for Gold (XAUUSD)</b>.\n"
+            "• Not for FX or crypto.\n"
+            "• <b>Use default settings</b>."
+        )
+    await update.message.reply_text(msg, parse_mode="HTML")
