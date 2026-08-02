@@ -70,7 +70,17 @@ async def natural_language_handler(update: Update, context: ContextTypes.DEFAULT
         await update.message.reply_text(response, parse_mode="Markdown")
     except Exception as e:
         logging.error(f"Error in agent processing: {e}")
-        await update.message.reply_text("Sorry, I encountered an error. Please try again or type 'exit' to leave agent mode.")
+        # Check if it's a connection error (Ollama not running)
+        if "Connection refused" in str(e) or "ConnectError" in str(type(e).__name__):
+            await update.message.reply_text(
+                "⚠️ *Agent Mode Error*\n\n"
+                "The AI assistant requires Ollama to be running.\n\n"
+                "Please start Ollama with:\n"
+                "`ollama serve`\n\n"
+                "Or type 'exit' to leave agent mode and use standard commands."
+            )
+        else:
+            await update.message.reply_text("Sorry, I encountered an error. Please try again or type 'exit' to leave agent mode.")
 
 # ==================== MAIN ====================
 def main():
