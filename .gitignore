@@ -5,46 +5,30 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Logs
-*.log
-
-# Environment
+# Dependencies
+.venv/
+venv/
+env/
 .env
 .env.local
 .env.*
 
-# Editors
+# Logs
+*.log
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Dependencies
-.venv/
-venv/
-node_modules/
-
-# Build artifacts
-dist/
-build/
-target/
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Temporary files
 *.tmp
-*.temp
 
-# OS specific
+# OS
 .DS_Store
 Thumbs.db
-
-# MyPy
-.mypy_cache/
-
-# Pytest
-.pytest_cache/
 ```

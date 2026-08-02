@@ -344,26 +344,48 @@ class ConversationMemory:
         self.modes: Dict[str, str] = {}  # Track agent mode per user
     
     def get_history(self, user_id: str) -> List[BaseMessage]:
-        return self.conversations.get(user_id, [])
+        import logging
+        logger = logging.getLogger(__name__)
+        history = self.conversations.get(user_id, [])
+        logger.info(f"[CONVERSATION_MEMORY] get_history for user {user_id}: {len(history)} messages")
+        return history
     
     def add_message(self, user_id: str, message: BaseMessage):
+        import logging
+        logger = logging.getLogger(__name__)
         if user_id not in self.conversations:
             self.conversations[user_id] = []
+            logger.info(f"[CONVERSATION_MEMORY] Created new conversation for user {user_id}")
         self.conversations[user_id].append(message)
         
         # Keep only last 10 messages to avoid context overflow
         if len(self.conversations[user_id]) > 10:
             self.conversations[user_id] = self.conversations[user_id][-10:]
+            logger.info(f"[CONVERSATION_MEMORY] Trimmed conversation for user {user_id} to 10 messages")
+        
+        logger.info(f"[CONVERSATION_MEMORY] Added message for user {user_id}, total: {len(self.conversations[user_id])} messages")
     
     def clear_history(self, user_id: str):
+        import logging
+        logger = logging.getLogger(__name__)
         if user_id in self.conversations:
             del self.conversations[user_id]
+            logger.info(f"[CONVERSATION_MEMORY] Cleared history for user {user_id}")
+        else:
+            logger.info(f"[CONVERSATION_MEMORY] No history to clear for user {user_id}")
     
     def is_in_agent_mode(self, user_id: str) -> bool:
-        return self.modes.get(user_id, "command") == "agent"
+        import logging
+        logger = logging.getLogger(__name__)
+        result = self.modes.get(user_id, "command") == "agent"
+        logger.info(f"[CONVERSATION_MEMORY] is_in_agent_mode for user {user_id}: {result}, current mode: {self.modes.get(user_id, 'command')}")
+        return result
     
     def set_agent_mode(self, user_id: str, active: bool):
+        import logging
+        logger = logging.getLogger(__name__)
         self.modes[user_id] = "agent" if active else "command"
+        logger.info(f"[CONVERSATION_MEMORY] set_agent_mode for user {user_id}: {'agent' if active else 'command'}")
 
 
 # Global memory instance
@@ -381,8 +403,15 @@ def run_agent(user_message: str, user_id: str) -> str:
     Returns:
         The agent's response text
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"[RUN_AGENT] User {user_id} sent message: '{user_message}'")
+    logger.info(f"[RUN_AGENT] User {user_id} in agent mode: {memory.is_in_agent_mode(user_id)}")
+    
     # Get conversation history
     history = memory.get_history(user_id)
+    logger.info(f"[RUN_AGENT] Conversation history length: {len(history)}")
     
     # Create initial state
     initial_state = {
@@ -395,18 +424,28 @@ def run_agent(user_message: str, user_id: str) -> str:
         "should_exit": False
     }
     
+    logger.info(f"[RUN_AGENT] Invoking agent_app...")
+    
     # Run the agent
-    result = agent_app.invoke(initial_state)
+    try:
+        result = agent_app.invoke(initial_state)
+        logger.info(f"[RUN_AGENT] Agent invocation successful")
+    except Exception as e:
+        logger.error(f"[RUN_AGENT] Agent invocation failed: {e}", exc_info=True)
+        raise
     
     # Get response
     response = result.get("response", "Something went wrong.")
+    logger.info(f"[RUN_AGENT] Agent response: '{response[:100]}...'")
     
     # Update conversation history
     memory.add_message(user_id, HumanMessage(content=user_message))
     memory.add_message(user_id, AIMessage(content=response))
+    logger.info(f"[RUN_AGENT] Updated conversation history, new length: {len(memory.get_history(user_id))}")
     
     # Check if we should exit agent mode
     if result.get("should_exit"):
+        logger.info(f"[RUN_AGENT] Exiting agent mode for user {user_id}")
         memory.set_agent_mode(user_id, False)
         memory.clear_history(user_id)
     
@@ -415,10 +454,15 @@ def run_agent(user_message: str, user_id: str) -> str:
 
 def enter_agent_mode(user_id: str) -> str:
     """Enter agent mode for a user."""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"[AGENT MODE] User {user_id} is entering agent mode")
     print(f"User {user_id} has entered agent mode.")
 
     memory.set_agent_mode(user_id, True)
     memory.clear_history(user_id)  # Clear old history when entering agent mode
+    
+    logger.info(f"[AGENT MODE] User {user_id} agent mode status: {memory.is_in_agent_mode(user_id)}")
     
     return (
         "🤖 **Agent Mode Activated!**\n\n"
