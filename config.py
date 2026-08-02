@@ -4,7 +4,7 @@ BOT_TOKEN = "8940965023:AAH5EJBC4xbWWD08b2jfvTqIWwMExwe32tU"
 
 
 # GitHub configuration for licence saving
-GITHUB_TOKEN = "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"
+GITHUB_TOKEN = "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"
 GITHUB_REPO = "ranjanZ/Dalal_Street_Quants"
 BRANCH = "main"
 
