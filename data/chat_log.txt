@@ -342,3 +342,20 @@
 [2026-08-02 14:53:57] Ranjan Mondal (@None) (id:912944760) → /start
 [2026-08-02 14:54:01] Ranjan Mondal (@None) (id:912944760) → /agent_mode
 >>>>>>> 2eb71b0 (all added)
+[2026-08-02 15:25:33] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 15:25:38] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 15:25:56] Ranjan Mondal (@None) (id:912944760) → How do I set up the bot?
+[2026-08-02 15:27:17] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-08-02 15:27:55] Ranjan Mondal (@None) (id:912944760) → I want to get license
+[2026-08-02 15:28:31] Ranjan Mondal (@None) (id:912944760) → I want to get a license for DSQ V2
+[2026-08-02 15:40:49] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 15:40:53] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 15:41:12] Ranjan Mondal (@None) (id:912944760) → 'I want to get a license for DSQ V2
+[2026-08-02 15:41:50] Ranjan Mondal (@None) (id:912944760) → 453453 is my MetaTrader 5  account ID
+[2026-08-02 15:42:14] Ranjan Mondal (@None) (id:912944760) → 453453
+[2026-08-02 15:42:39] Ranjan Mondal (@None) (id:912944760) → MetaTrader 5 Account ID is 453453
+[2026-08-02 16:24:59] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 16:25:04] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 16:25:13] Ranjan Mondal (@None) (id:912944760) → How do I set up the bot?
+[2026-08-02 16:25:54] Ranjan Mondal (@None) (id:912944760) → I want to get a license for DSQ V2
+[2026-08-02 16:26:34] Ranjan Mondal (@None) (id:912944760) → 43466

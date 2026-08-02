@@ -22,7 +22,7 @@ from datetime import datetime
 
 
 # Configuration
-OLLAMA_MODEL = "llama3.2"
+OLLAMA_MODEL = "gemma2:2b"
 GITHUB_TOKEN = os.getenv("GITHUB_API_TOKEN")
 GITHUB_OWNER = os.getenv("GITHUB_OWNER", "your-github-username")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "your-repo-name")
