@@ -14,7 +14,7 @@ import os
 import json
 import hashlib
 import requests
-from typing import TypedDict, Annotated, Sequence, Literal, Optional, Dict, Any
+from typing import TypedDict, Annotated, Sequence, Literal, Optional, Dict, Any, List
 from langgraph.graph import StateGraph, END
 from langchain_ollama import ChatOllama
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage

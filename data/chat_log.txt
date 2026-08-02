@@ -261,3 +261,53 @@
 [2026-08-02 00:28:49] Ranjan Mondal (@None) (id:912944760) → //start
 [2026-08-02 00:29:01] Ranjan Mondal (@None) (id:912944760) → /start
 [2026-08-02 00:29:20] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 00:49:48] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 00:50:13] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 00:50:31] Ranjan Mondal (@None) (id:912944760) → how can I cerate license
+[2026-08-02 00:51:00] Ranjan Mondal (@None) (id:912944760) → create license for v2
+[2026-08-02 00:51:47] Ranjan Mondal (@None) (id:912944760) → mt5 id: 34235
+-Name: Ranjan  _OOLAMA
+[2026-08-02 00:52:53] Ranjan Mondal (@None) (id:912944760) → why you are not creating license ?
+[2026-08-02 00:53:28] Ranjan Mondal (@None) (id:912944760) → /get_licence_2
+[2026-08-02 00:54:25] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 00:54:29] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-08-02 00:54:32] Ranjan Mondal (@None) (id:912944760) → 2434523
+[2026-08-02 00:54:49] Ranjan Mondal (@None) (id:912944760) → sdfsdf
+[2026-08-02 01:08:55] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 01:09:00] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-08-02 01:09:04] Ranjan Mondal (@None) (id:912944760) → 56456
+[2026-08-02 01:09:08] Ranjan Mondal (@None) (id:912944760) → hjghj
+[2026-08-02 01:09:12] Ranjan Mondal (@None) (id:912944760) → 7567
+[2026-08-02 01:09:20] Ranjan Mondal (@None) (id:912944760) → demo
+[2026-08-02 01:10:02] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 01:10:12] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 01:10:38] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 01:10:47] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 01:21:08] Ranjan Mondal (@None) (id:912944760) → https://dalalstreetquants.github.io/   —> Our new page
+[2026-08-02 01:21:08] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 01:21:29] Ranjan Mondal (@None) (id:912944760) → hi
+[2026-08-02 01:21:43] Ranjan Mondal (@None) (id:912944760) → hello
+[2026-08-02 01:21:54] Ranjan Mondal (@None) (id:912944760) → how can I get license
+[2026-08-02 01:22:01] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 01:22:05] Ranjan Mondal (@None) (id:912944760) → /risk_v2
+[2026-08-02 01:22:08] Ranjan Mondal (@None) (id:912944760) → /risk_v2
+[2026-08-02 01:22:10] Ranjan Mondal (@None) (id:912944760) → /risk_v3
+[2026-08-02 01:22:12] Ranjan Mondal (@None) (id:912944760) → /risk_v1
+[2026-08-02 01:22:15] Ranjan Mondal (@None) (id:912944760) → /risk_v4
+[2026-08-02 01:22:17] Ranjan Mondal (@None) (id:912944760) → /get_setup_instruction_v4
+[2026-08-02 13:47:32] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 13:47:42] Ranjan Mondal (@None) (id:912944760) → /get_licence_v1
+[2026-08-02 13:47:46] Ranjan Mondal (@None) (id:912944760) → 324234
+[2026-08-02 13:47:49] Ranjan Mondal (@None) (id:912944760) → sfnskfbkjsndfkjskdf
+[2026-08-02 13:47:54] Ranjan Mondal (@None) (id:912944760) → Vantage
+[2026-08-02 13:47:58] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-08-02 13:49:42] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 13:49:56] Ranjan Mondal (@None) (id:912944760) → /get_licence_v2
+[2026-08-02 13:50:06] Ranjan Mondal (@None) (id:912944760) → yes
+[2026-08-02 13:50:10] Ranjan Mondal (@None) (id:912944760) → 32423523
+[2026-08-02 13:50:12] Ranjan Mondal (@None) (id:912944760) → sdfsdfsdlfsnfsd
+[2026-08-02 13:50:16] Ranjan Mondal (@None) (id:912944760) → dXM
+[2026-08-02 13:50:19] Ranjan Mondal (@None) (id:912944760) → Demo
+[2026-08-02 13:50:26] Ranjan Mondal (@None) (id:912944760) → /start
+[2026-08-02 13:50:39] Ranjan Mondal (@None) (id:912944760) → /agent_mode
+[2026-08-02 13:50:44] Ranjan Mondal (@None) (id:912944760) → hi
