@@ -43,16 +43,19 @@ async def update_github_licence(mt5_id: str, name: str, broker: str, account_typ
 
         # 2. Add user (check for duplicate)
         users_list = data.get("users", [])
-        if any(u.get("user_id") == mt5_id for u in users_list):
+        if any(u.get("metatrader_id") == mt5_id for u in users_list):
             raise ValueError(f"MT5 ID {mt5_id} already exists.")
 
         valid_upto = (datetime.utcnow() + timedelta(days=90)).strftime("%d-%m-%Y")
+        # V1 and V2 are verified, V3 and V4 need verification
+        verified = "True"
         new_user = {
-            "user_id": mt5_id,
+            "metatrader_id": mt5_id,
             "server_name": "unknown",
             "broker": broker.lower(),
             "name": name,
             "account_type": account_type,   # "demo" or "real"
+            "Verified": verified,
             "valid_upto": valid_upto
         }
         users_list.append(new_user)

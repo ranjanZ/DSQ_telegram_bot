@@ -4,17 +4,50 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
+env/
+venv/
+.venv/
+.ENV
+.venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Logs and temp files
-*.log
-*.tmp
+# Generated folders
+build/
+dist/
+*.egg-info/
+
+# Testing
+.coverage
+coverage/
+htmlcov/
+.noserc
+.tox/
 
 # Environment
 .env
 .env.local
+*.env
 .env.*
 
-# Editors
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.coverage*
 ```
