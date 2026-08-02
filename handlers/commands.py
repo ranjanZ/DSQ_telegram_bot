@@ -21,70 +21,66 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if lang == "hi":
         msg = (
             "👋 आपका स्वागत है! [अभी सब कुछ फ्री है]\n\n"
+            "/agent_mode – AI असिस्टेंट मोड\n"
             "/start – यह मेनू दिखाएं\n"
             "/change_lang – भाषा बदलें (English ↔ हिंदी)\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V1</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v1 – ग्रिड बॉट V1 डाउनलोड करें\n"
-            "/get_licence_v1 – लाइसेंस फॉर्म\n"
-            "/get_setup_instruction_v1 – सेटअप निर्देश\n"
-            "/risk_v1 – जोखिम जानकारी\n\n"
+            "/get_licence_v1 – लाइसेंस फॉर्म\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V2</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v2 – ग्रिड बॉट V2 डाउनलोड करें\n"
-            "/get_licence_v2 – लाइसेंस फॉर्म\n"
-            "/get_setup_instruction_v2 – सेटअप निर्देश\n"
-            "/risk_v2 – जोखिम जानकारी\n\n"
+            "/get_licence_v2 – लाइसेंस फॉर्म\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V3</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v3 – ग्रिड बॉट V3 डाउनलोड करें\n"
-            "/get_licence_v3 – लाइसेंस फॉर्म\n"
-            "/get_setup_instruction_v3 – सेटअप निर्देश\n"
-            "/risk_v3 – जोखिम जानकारी\n\n"
+            "/get_licence_v3 – लाइसेंस फॉर्म\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V4</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v4 – ग्रिड बॉट V4 डाउनलोड करें\n"
-            "/get_licence_v4 – लाइसेंस फॉर्म\n"
-            "/get_setup_instruction_v4 – सेटअप निर्देश\n"
-            "/risk_v4 – जोखिम जानकारी"
+            "/get_licence_v4 – लाइसेंस फॉर्म\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "📚 <b>मदद और जानकारी</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "/get_setup_instruction – सेटअप निर्देश\n"
+            "/risk_info – जोखिम जानकारी"
         )
     else:
         msg = (
             "👋 Welcome! [Everything is free for now]\n\n"
+            "/agent_mode – AI Assistant Mode\n"
             "/start – Show this menu\n"
             "/change_lang – Toggle language (English ↔ हिंदी)\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V1</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v1 – Download Grid bot V1\n"
-            "/get_licence_v1 – Licence form\n"
-            "/get_setup_instruction_v1 – Setup instructions\n"
-            "/risk_v1 – Risk information\n\n"
+            "/get_licence_v1 – Licence form\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V2</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v2 – Download Grid bot V2\n"
-            "/get_licence_v2 – Licence form\n"
-            "/get_setup_instruction_v2 – Setup instructions\n"
-            "/risk_v2 – Risk information\n\n"
+            "/get_licence_v2 – Licence form\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V3</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v3 – Download Grid bot V3\n"
-            "/get_licence_v3 – Licence form\n"
-            "/get_setup_instruction_v3 – Setup instructions\n"
-            "/risk_v3 – Risk information\n\n"
+            "/get_licence_v3 – Licence form\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "🤖 <b>Bot DSQ V4</b>\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "/get_dsq_v4 – Download Grid bot V4\n"
-            "/get_licence_v4 – Licence form\n"
-            "/get_setup_instruction_v4 – Setup instructions\n"
-            "/risk_v4 – Risk information"
+            "/get_licence_v4 – Licence form\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "📚 <b>Help & Information</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "/get_setup_instruction – Setup instructions\n"
+            "/risk_info – Risk information"
         )
     await update.message.reply_text(msg, parse_mode="HTML")
 
@@ -362,23 +358,19 @@ handlers = [
 
     # V1 commands
     CommandHandler("get_dsq_v1", get_dsq_v1),
-    CommandHandler("get_setup_instruction_v1", get_setup_instruction_v1),
-    CommandHandler("risk_v1", risk_v1),
 
     # V2 commands
     CommandHandler("get_dsq_v2", get_dsq_v2),
-    CommandHandler("get_setup_instruction_v2", get_setup_instruction_v2),
-    CommandHandler("risk_v2", risk_v2),
 
     # V3 commands
     CommandHandler("get_dsq_v3", get_dsq_v3),
-    CommandHandler("get_setup_instruction_v3", get_setup_instruction_v2),
-    CommandHandler("risk_v3", risk_v2),
 
     # V4 commands
     CommandHandler("get_dsq_v4", get_dsq_v4),
-    CommandHandler("get_setup_instruction_v4", get_setup_instruction_v2),
-    CommandHandler("risk_v4", risk_v2),
+
+    # Shared setup instruction and risk info
+    CommandHandler("get_setup_instruction", get_setup_instruction),
+    CommandHandler("risk_info", risk_info),
 ]
 
 
