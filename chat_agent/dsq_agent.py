@@ -1,27 +1,35 @@
 """
-Dalal Street Quants - Clean Conversational Agent
-Uses Gemma2:2b via Ollama for intent + entity understanding.
+Dalal Street Quants - Robust Conversational Agent (Gemma2:2b)
+Keyword-based intent + simple LLM entity extraction.
 Handles: License creation (multi-turn), Setup help, General queries.
 """
 
 import os
 import json
-import hashlib
+import base64
+import re
 import requests
 from typing import TypedDict, Annotated, Sequence, Literal
 from langgraph.graph import StateGraph, END
 from langchain_ollama import ChatOllama
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
-from datetime import datetime
+from datetime import datetime, timedelta
+
+# Import your existing config
+from config import *
 
 # ─── Configuration ─────────────────────────────────────────────
 OLLAMA_MODEL = "gemma2:2b"
-GITHUB_TOKEN = os.getenv("GITHUB_API_TOKEN")
-GITHUB_OWNER = os.getenv("GITHUB_OWNER", "your-github-username")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "your-repo-name")
-BRANCH_NAME = os.getenv("GITHUB_BRANCH", "main")
 
 llm = ChatOllama(model=OLLAMA_MODEL, temperature=0.1)
+
+# Map version string to config variables
+VERSION_CONFIG = {
+    "v1": {"file_path": FILE_PATH_V1, "api_url": GITHUB_API_URL_V1},
+    "v2": {"file_path": FILE_PATH_V2, "api_url": GITHUB_API_URL_V2},
+    "v3": {"file_path": FILE_PATH_V3, "api_url": GITHUB_API_URL_V3},
+    "v4": {"file_path": FILE_PATH_V4, "api_url": GITHUB_API_URL_V4},
+}
 
 # ─── State ─────────────────────────────────────────────────────
 class AgentState(TypedDict):
@@ -34,79 +42,127 @@ class AgentState(TypedDict):
     done: bool
 
 
-# ─── Node 1: Understand ────────────────────────────────────────
-UNDERSTAND_PROMPT = """You are the Dalal Street Quants AI Assistant. Analyze the conversation and output a JSON object.
+# ─── Helper: Keyword Intent Detection ──────────────────────────
+EXIT_KEYWORDS = ["exit", "quit", "menu", "stop", "bye", "goodbye", "/start"]
+LICENSE_KEYWORDS = ["license", "licence", "licens", "key", "generate key", "get key", 
+                   "want license", "need license", "create license", "license key",
+                   "activation", "activate"]
+SETUP_KEYWORDS = ["setup", "install", "how do i", "how to", "setting up", "attach",
+                 "download", "configure", "put the bot", "run the bot", "use the bot"]
 
-Your job is to determine:
-1. What the user wants (intent)
-2. What information they've already provided
-3. What's still missing (if anything)
+def _detect_intent(last_msg: str, prev_messages: list) -> str:
+    """Fast keyword-based intent detection. No LLM needed."""
+    msg = last_msg.lower().strip()
 
-Possible intents:
-- "license": User wants to create a license key
-- "setup": User wants setup instructions for a bot
-- "general": General question about the bot, trading, risk, etc.
-- "exit": User wants to exit agent mode (say exit, quit, menu, stop)
-- "unknown": Cannot determine intent
+    # Exit
+    if any(k in msg for k in EXIT_KEYWORDS):
+        return "exit"
 
-For license creation, these fields are REQUIRED:
-- mt5_id: MetaTrader 5 account number
-- name: User's full name  
-- broker: Broker name
-- account_type: "Live" or "Demo"
-- version: "v1", "v2", "v3", or "v4" (default to "v2" if not specified)
+    # License
+    if any(k in msg for k in LICENSE_KEYWORDS):
+        return "license"
 
-For setup help, try to extract:
-- version: Which bot version they need help with
+    # Setup
+    if any(k in msg for k in SETUP_KEYWORDS):
+        return "setup"
 
-Output STRICT JSON in this exact format:
-{
-  "intent": "license|setup|general|exit|unknown",
-  "collected": {"mt5_id": "...", "name": "...", ...},
-  "missing": ["field1", "field2"],
-  "reasoning": "Brief explanation of your decision"
-}
+    # Number selection from previous menu (e.g. user types "1" or "2")
+    if msg in ["1", "2", "3"] and prev_messages:
+        for prev in reversed(prev_messages):
+            if isinstance(prev, AIMessage):
+                content = prev.content
+                if "1." in content and "license" in content.lower():
+                    if msg == "1":
+                        return "license"
+                    elif msg == "2":
+                        return "setup"
+                    elif msg == "3":
+                        return "general"
+                break
 
-Rules:
-- Only include fields in "collected" if the user actually provided them in this or previous messages.
-- "missing" should list required fields not yet collected.
-- If intent is "general" or "exit", "missing" should be empty.
-- If the user corrects previous info, update "collected" accordingly.
+    # Default to general (let LLM handle it)
+    return "general"
+
+
+# ─── Helper: Simple Entity Extraction ──────────────────────────
+ENTITY_PROMPT = """Extract information from the user's message.
+Return ONLY a JSON object with found fields. No explanation. No markdown.
+
+Fields to look for:
+- metatrader_id: MetaTrader account number (digits only)
+- name: person's full name
+- broker: broker company name
+- server_name: MetaTrader server name (e.g. "MetaQuotes-Demo", "ICMarkets-Live")
+- version: "v1", "v2", "v3", or "v4" (or "1","2","3","4")
+
+Example output: {"name":"Rahul","broker":"Zerodha","version":"v2"}
+If nothing found, output: {}
 """
 
-def understand(state: AgentState) -> AgentState:
-    """Single node: classify intent, extract entities, find gaps."""
-
-    messages = [SystemMessage(content=UNDERSTAND_PROMPT)] + list(state["messages"])
-    raw = llm.invoke(messages).content.strip()
-
-    # Clean markdown fences if present
-    if raw.startswith("```"):
-        raw = raw.split("```")[1].replace("json", "").strip()
+def _extract_entities(messages: Sequence[BaseMessage]) -> dict:
+    """Use LLM to extract entities. Very short prompt for 2B model."""
+    msgs = [SystemMessage(content=ENTITY_PROMPT)] + list(messages[-2:])
 
     try:
-        parsed = json.loads(raw)
-        intent = parsed.get("intent", "unknown")
-        collected = parsed.get("collected", {})
-        missing = parsed.get("missing", [])
-    except json.JSONDecodeError:
-        intent, collected, missing = "unknown", {}, []
+        raw = llm.invoke(msgs).content.strip()
+        raw = raw.replace("```json", "").replace("```", "").strip()
+        if not raw or raw[0] != "{":
+            match = re.search(r'\{.*?\}', raw, re.DOTALL)
+            if match:
+                raw = match.group(0)
+            else:
+                return {}
+        entities = json.loads(raw)
+        return entities if isinstance(entities, dict) else {}
+    except Exception:
+        return {}
 
-    # Merge newly collected with previous state
-    prev_collected = state.get("collected", {})
-    prev_collected.update(collected)
 
-    # Re-check missing against merged data for license intent
+# ─── Node 1: Understand ────────────────────────────────────────
+def understand(state: AgentState) -> AgentState:
+    """Understand user intent and extract entities."""
+
+    messages = list(state["messages"])
+    last_msg = messages[-1].content if messages else ""
+    prev_messages = messages[:-1]
+
+    # Step 1: Detect intent via keywords (reliable)
+    intent = _detect_intent(last_msg, prev_messages)
+
+    # Step 2: Merge previous collected data
+    collected = state.get("collected", {}).copy()
+
+    # Step 3: Extract new entities via LLM (only for license/setup)
+    if intent in ["license", "setup"]:
+        new_entities = _extract_entities(messages)
+        # Normalize version
+        if "version" in new_entities:
+            v = str(new_entities["version"]).lower().replace(" ", "")
+            if "v1" in v or v == "1":
+                new_entities["version"] = "v1"
+            elif "v2" in v or v == "2":
+                new_entities["version"] = "v2"
+            elif "v3" in v or v == "3":
+                new_entities["version"] = "v3"
+            elif "v4" in v or v == "4":
+                new_entities["version"] = "v4"
+        collected.update(new_entities)
+
+    # Step 4: Compute missing fields in code
+    missing = []
     if intent == "license":
-        required = ["mt5_id", "name", "broker", "account_type"]
-        missing = [f for f in required if f not in prev_collected or not prev_collected[f]]
-        if "version" not in prev_collected:
-            prev_collected["version"] = "v2"
+        required = ["metatrader_id", "name", "broker", "server_name", "version"]
+        for field in required:
+            if field not in collected or not str(collected[field]).strip():
+                missing.append(field)
+    elif intent == "setup":
+        if "version" not in collected or not collected["version"]:
+            missing.append("version")
 
     return {
         **state,
         "intent": intent,
-        "collected": prev_collected,
+        "collected": collected,
         "missing": missing,
     }
 
@@ -129,54 +185,60 @@ def execute(state: AgentState) -> AgentState:
     elif intent == "license":
         if missing:
             field_labels = {
-                "mt5_id": "your MetaTrader 5 Account ID",
+                "metatrader_id": "your MetaTrader 5 Account ID",
                 "name": "your full name",
                 "broker": "your broker's name", 
-                "account_type": "your account type (Live or Demo)"
+                "server_name": "your MetaTrader server name (e.g. MetaQuotes-Demo, ICMarkets-Live)",
+                "version": "which bot version (V1, V2, V3, or V4)"
             }
-            # Ask for ALL missing fields at once
             missing_labels = [field_labels.get(f, f) for f in missing]
             if len(missing_labels) == 1:
                 question = f"To create your license, I still need {missing_labels[0]}. Could you please provide that?"
             else:
                 question = (
-                    "To create your license, I need the following information:"
+                    "To create your license, I need the following information:\n"
                     + "\n".join(f"• {label}" for label in missing_labels)
-                    + "\n\nPlease provide these details and I'll generate your license key right away."
+                    + "\n\nPlease provide these details and I'll create your license right away."
                 )
-            result = {
-                "type": "ask",
-                "data": {"question": question}
-            }
+            result = {"type": "ask", "data": {"question": question}}
         else:
-            success, license_key = _create_license_on_github(collected)
+            success, msg = _create_license_on_github(collected)
             if success:
+                version = collected.get("version", "v2").lower()
                 result = {
                     "type": "license_created",
                     "data": {
-                        "license_key": license_key,
-                        "mt5_id": collected["mt5_id"],
+                        "message": msg,
                         "name": collected["name"],
+                        "metatrader_id": collected["metatrader_id"],
                         "broker": collected["broker"],
-                        "version": collected.get("version", "v2").upper()
+                        "version": version.upper()
                     }
                 }
             else:
                 result = {
                     "type": "error",
-                    "data": {"message": "Failed to create license. GitHub token may be missing or invalid."}
+                    "data": {"message": msg}
                 }
 
     # ── SETUP ──
     elif intent == "setup":
-        version = collected.get("version", "v2").lower()
-        result = {
-            "type": "setup_instructions",
-            "data": {
-                "version": version.upper(),
-                "instructions": _get_setup_instructions(version)
+        if missing:
+            result = {
+                "type": "ask",
+                "data": {"question": "Which version do you need setup help for? (V1, V2, V3, or V4)"}
             }
-        }
+        else:
+            version = collected.get("version", "v2").lower()
+            if version not in ["v1", "v2", "v3", "v4"]:
+                version = "v2"
+            result = {
+                "type": "setup_instructions",
+                "data": {
+                    "version": version.upper(),
+                    "instructions": _get_setup_instructions(version)
+                }
+            }
 
     # ── GENERAL ──
     elif intent == "general":
@@ -188,7 +250,7 @@ def execute(state: AgentState) -> AgentState:
         result = {
             "type": "ask",
             "data": {
-                "question": "I'm not sure I understood. I can help you with:\n1. Creating a license\n2. Bot setup instructions\n3. General questions about our bots\n\nWhat would you like to do?"
+                "question": "I can help you with:\n1. Creating a license (V1, V2, V3, or V4)\n2. Bot setup instructions\n3. General questions about our bots\n\nWhat would you like to do?"
             }
         }
 
@@ -202,17 +264,16 @@ RESPONSE_TEMPLATES = {
     "license_created": (
         "✅ **License Created Successfully!**\n\n"
         "👤 Name: {name}\n"
-        "🆔 MT5 ID: {mt5_id}\n"
+        "🆔 MetaTrader ID: {metatrader_id}\n"
         "🏢 Broker: {broker}\n"
         "📦 Version: {version}\n\n"
-        "🔑 **Your License Key:**\n`{license_key}`\n\n"
-        "The license has been saved to the repository. Paste this key into your MetaTrader EA inputs."
+        "{message}"
     ),
     "error": "❌ {message}",
     "setup_instructions": (
         "📘 **Setup Instructions for DSQ {version}**\n\n"
         "{instructions}\n\n"
-        "Need a license key next? Just say 'I want a license'!"
+        "Need a license next? Just say 'I want a license'!"
     ),
     "general_answer": "{answer}",
 }
@@ -240,54 +301,97 @@ def router(state: AgentState) -> Literal["execute", "end"]:
 
 # ─── Helper: License Creation ──────────────────────────────────
 def _create_license_on_github(collected: dict) -> tuple[bool, str]:
-    """Create license JSON and push to GitHub. Returns (success, license_key)."""
+    """
+    Append user entry to the version-specific JSON file on GitHub.
+    Checks if metatrader_id already exists — if yes, returns duplicate message.
+    Uses FILE_PATH_V{1,2,3,4} and GITHUB_API_URL_V{1,2,3,4} from config.
+    Returns (success, message).
+    """
 
     if not GITHUB_TOKEN:
-        return False, ""
+        return False, "GitHub token not configured."
 
-    mt5_id = str(collected["mt5_id"])
+    version = collected.get("version", "v2").lower()
+    if version not in VERSION_CONFIG:
+        version = "v2"
+
+    cfg = VERSION_CONFIG[version]
+    api_url = cfg["api_url"]
+    file_path = cfg["file_path"]
+
+    metatrader_id = str(collected["metatrader_id"])
     name = collected["name"]
     broker = collected["broker"]
-    account_type = collected.get("account_type", "Demo")
-    version = collected.get("version", "v2").lower()
+    server_name = collected.get("server_name", "")
 
-    unique = f"{mt5_id}{name}{broker}{datetime.now().strftime('%Y%m%d')}"
-    license_key = hashlib.sha256(unique.encode()).hexdigest()[:16].upper()
-
-    folder = f"DSQ_{version.upper()}"
-    file_path = f"licenses/{folder}/{mt5_id}.json"
-
-    license_data = {
-        "mt5_id": mt5_id,
-        "name": name,
-        "broker": broker,
-        "account_type": account_type,
-        "license_key": license_key,
-        "created_at": datetime.now().isoformat(),
-        "version": version
-    }
-
-    api_url = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/contents/{file_path}"
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
 
+    # Try to fetch existing file
     sha = None
+    existing_licenses = []
+
     get_resp = requests.get(api_url, headers=headers)
     if get_resp.status_code == 200:
-        sha = get_resp.json().get("sha")
+        data = get_resp.json()
+        sha = data.get("sha")
+        try:
+            content_b64 = data.get("content", "")
+            content_json = base64.b64decode(content_b64.replace("\n", "")).decode("utf-8")
+            existing_licenses = json.loads(content_json)
+            if not isinstance(existing_licenses, list):
+                existing_licenses = [existing_licenses] if existing_licenses else []
+        except Exception:
+            existing_licenses = []
+
+    # ─── CHECK FOR DUPLICATE ───────────────────────────────────
+    for entry in existing_licenses:
+        if str(entry.get("metatrader_id", "")) == metatrader_id:
+            return False, f"License already exists with this MetaTrader account ID ({metatrader_id})."
+
+    # Valid upto = today + 6 months
+    valid_upto = (datetime.now() + timedelta(days=180)).strftime("%d-%m-%Y")
+
+    # Verified field based on version
+    if version in ["v1", "v2"]:
+        verified = "True"
+        success_msg = "You are now ready to use the bot. 🚀"
+    else:
+        verified = "False"
+        success_msg = "Please wait for verification. After verification you can use the bot. ⏳"
+
+    # New license entry
+    new_entry = {
+        "metatrader_id": metatrader_id,
+        "server_name": server_name,
+        "broker": broker,
+        "name": name,
+        "Verified": verified,
+        "valid_upto": valid_upto
+    }
+
+    # Append new entry
+    existing_licenses.append(new_entry)
+
+    # Encode back to base64
+    new_content = json.dumps(existing_licenses, indent=2)
+    new_content_b64 = base64.b64encode(new_content.encode("utf-8")).decode("utf-8")
 
     payload = {
-        "message": f"license: {name} ({mt5_id}) - {version.upper()}",
-        "content": json.dumps(license_data, indent=2),
-        "branch": BRANCH_NAME
+        "message": f"license: add {name} ({metatrader_id}) to {file_path}",
+        "content": new_content_b64,
+        "branch": BRANCH
     }
     if sha:
         payload["sha"] = sha
 
     put_resp = requests.put(api_url, headers=headers, json=payload)
-    return put_resp.status_code in [200, 201], license_key
+
+    if put_resp.status_code in [200, 201]:
+        return True, success_msg
+    return False, "Failed to push license to GitHub. Please try again."
 
 
 # ─── Helper: Setup Instructions ────────────────────────────────
@@ -445,13 +549,8 @@ def exit_agent_mode(user_id: str) -> str:
 
 if __name__ == "__main__":
     """
-    Run this file to test the agent:
-
-        python dsq_agent.py
-
-    Requirements:
-        - Ollama running locally with gemma2:2b pulled
-        - GITHUB_TOKEN set (or license creation will show error)
+    Run: python dsq_agent.py
+    Requirements: Ollama with gemma2:2b, config.py in same folder
     """
 
     def run_test_scenario(name: str, user_id: str, inputs: list[str]):
@@ -459,11 +558,9 @@ if __name__ == "__main__":
         print(f"  TEST SCENARIO: {name}")
         print("=" * 70)
 
-        # Reset user
         memory.clear(user_id)
         memory.set_agent(user_id, True)
 
-        # Welcome message
         print(f"\n🤖 Agent: {enter_agent_mode(user_id)}")
 
         for i, user_msg in enumerate(inputs, 1):
@@ -487,39 +584,13 @@ if __name__ == "__main__":
     #     name="General Query",
     #     user_id="test_general_user",
     #     inputs=[
+    #         "hi",
     #         "What is the risk management strategy in DSQ bots?",
     #         "exit"
     #     ]
     # )
 
-    # # ── TEST 2: License Creation (Multi-turn) ────────────────
-    # # User provides info slowly, one or two fields at a time
-    # run_test_scenario(
-    #     name="License Creation (Multi-turn with Missing Info)",
-    #     user_id="test_license_user",
-    #     inputs=[
-    #         "Hi, I want to get a license for DSQ V2",
-    #         "My MT5 ID is 12345678",
-    #         "Name is Rahul Sharma",
-    #         "I use Zerodha",
-    #         "It's a Live account",
-    #         "exit"
-    #     ]
-    # )
-
-    # # ── TEST 3: License Creation (Partial dump + fix) ────────
-    # # User gives some info, misses one, then provides it
-    # run_test_scenario(
-    #     name="License Creation (Partial then Complete)",
-    #     user_id="test_license_user_2",
-    #     inputs=[
-    #         "I need a license. MT5 ID 87654321, broker is IC Markets",
-    #         "Name is Priya and it's a Demo account",
-    #         "exit"
-    #     ]
-    # )
-
-    # # ── TEST 4: Setup Help ───────────────────────────────────
+    # # ── TEST 2: Setup Help ───────────────────────────────────
     # run_test_scenario(
     #     name="Setup Instructions",
     #     user_id="test_setup_user",
@@ -529,13 +600,75 @@ if __name__ == "__main__":
     #     ]
     # )
 
+    # # ── TEST 3: V1 License (Verified=True, ready msg) ────────
+    # run_test_scenario(
+    #     name="V1 License Creation (Auto-Verified)",
+    #     user_id="test_v1_license",
+    #     inputs=[
+    #         "I want a V1 license. MT5 ID 12345678, name Rahul Sharma, broker Zerodha, server MetaQuotes-Demo",
+    #         "exit"
+    #     ]
+    # )
+
+    # # ── TEST 4: V2 License (Verified=True, ready msg) ────────
+    # run_test_scenario(
+    #     name="V2 License Creation (Auto-Verified)",
+    #     user_id="test_v2_license",
+    #     inputs=[
+    #         "Create license for V2. MT5 87654321, name Priya, broker IC Markets, server ICMarkets-Live",
+    #         "exit"
+    #     ]
+    # )
+
+    # # ── TEST 5: V3 License (Verified=False, wait msg) ────────
+    # run_test_scenario(
+    #     name="V3 License Creation (Wait for Verification)",
+    #     user_id="test_v3_license",
+    #     inputs=[
+    #         "I need a V3 license. MT5 11112222, name Alex, broker XM, server XMGlobal-Demo",
+    #         "exit"
+    #     ]
+    # )
+
+    # # ── TEST 6: V4 License (Verified=False, wait msg) ────────
+    # run_test_scenario(
+    #     name="V4 License Creation (Wait for Verification)",
+    #     user_id="test_v4_license",
+    #     inputs=[
+    #         "License for V4. MT5 99998888, name Sam, broker FBS, server FBS-Real",
+    #         "exit"
+    #     ]
+    # )
+
+    # # ── TEST 7: Duplicate License Check ──────────────────────
+    # run_test_scenario(
+    #     name="Duplicate License Check",
+    #     user_id="test_duplicate",
+    #     inputs=[
+    #         "I want a V2 license. MT5 ID 12345678, name Rahul Sharma, broker Zerodha, server MetaQuotes-Demo",
+    #         "exit"
+    #     ]
+    # )
+
+    # # ── TEST 8: License (partial, then complete) ─────────────
+    # run_test_scenario(
+    #     name="License Creation (Partial → Complete)",
+    #     user_id="test_license_partial",
+    #     inputs=[
+    #         "I need a license",
+    #         "V2",
+    #         "MT5 ID 55556666, broker Exness",
+    #         "Name is John, server Exness-MT5Trial",
+    #         "exit"
+    #     ]
+    # )
+
     # ── INTERACTIVE MODE ─────────────────────────────────────
     print("\n" + "=" * 70)
     print("  INTERACTIVE LIVE TEST MODE")
     print("=" * 70)
-    print("Type your messages below. The agent will respond live.")
-    print("Type \"exit\" to end the conversation.")
-    print("Type \"quit\" to stop the program.")
+    print("Type your messages. The agent responds live.")
+    print('Type "exit" to end conversation. Type "quit" to stop.')
     print("=" * 70)
 
     user_id = "interactive_user"
