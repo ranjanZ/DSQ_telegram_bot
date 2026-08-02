@@ -11,7 +11,7 @@ from telegram.ext import (
 )
 from config import BOT_TOKEN
 from handlers.commands import handlers
-from chat_agent.agent import run_agent, enter_agent_mode, exit_agent_mode, is_in_agent_mode
+from chat_agent.dsq_agent import run_agent, enter_agent_mode, exit_agent_mode, is_in_agent_mode
 
 # ==================== LOGGING SETUP ====================
 logging.basicConfig(
